@@ -1,0 +1,119 @@
+Network Configuration Scripts
+=============================
+
+I've created several scripts to help you manage network adapter configurations:
+
+## 📁 Files Created:
+
+### PowerShell Scripts:
+- Set-StaticIP.ps1     - Set static IP configuration
+- Set-DHCP.ps1         - Set DHCP configuration  
+- NetworkConfig.ps1    - Combined utility for both
+
+### Batch Files:
+- set_static_ip.bat    - Easy static IP setup
+- set_dhcp.bat         - Easy DHCP setup
+- network_config.bat   - Combined utility
+
+## 🚀 Quick Usage:
+
+### Set Static IP:
+```cmd
+# Using batch file (easiest)
+set_static_ip.bat 192.168.1.100 255.255.255.0 192.168.1.1
+
+# Using PowerShell directly
+powershell -ExecutionPolicy Bypass -File "Set-StaticIP.ps1" -IPAddress "192.168.1.100" -SubnetMask "255.255.255.0" -Gateway "192.168.1.1"
+```
+
+### Set DHCP:
+```cmd
+# Using batch file (easiest)
+set_dhcp.bat
+
+# Using PowerShell directly
+powershell -ExecutionPolicy Bypass -File "Set-DHCP.ps1"
+```
+
+### Check Status:
+```cmd
+# Using combined utility
+network_config.bat status
+
+# Using PowerShell directly
+powershell -ExecutionPolicy Bypass -File "NetworkConfig.ps1" -Action status
+```
+
+## 📋 Examples:
+
+### Static IP Examples:
+```cmd
+# Basic static IP
+set_static_ip.bat 192.168.1.100 255.255.255.0 192.168.1.1
+
+# Static IP with custom DNS
+powershell -ExecutionPolicy Bypass -File "Set-StaticIP.ps1" -IPAddress "10.0.0.50" -SubnetMask "255.255.0.0" -Gateway "10.0.0.1" -DNS1 "1.1.1.1" -DNS2 "1.0.0.1"
+
+# Static IP on specific adapter
+powershell -ExecutionPolicy Bypass -File "Set-StaticIP.ps1" -IPAddress "192.168.1.100" -SubnetMask "255.255.255.0" -Gateway "192.168.1.1" -AdapterName "Ethernet"
+```
+
+### DHCP Examples:
+```cmd
+# Basic DHCP
+set_dhcp.bat
+
+# DHCP on specific adapter
+powershell -ExecutionPolicy Bypass -File "Set-DHCP.ps1" -AdapterName "Ethernet"
+```
+
+## 🔧 Features:
+
+### Set-StaticIP.ps1:
+- Sets static IP address
+- Configures subnet mask
+- Sets default gateway
+- Configures DNS servers
+- Validates IP addresses
+- Shows current and new configuration
+- Verifies changes
+
+### Set-DHCP.ps1:
+- Enables DHCP
+- Resets DNS to automatic
+- Releases and renews IP
+- Shows current configuration
+- Verifies changes
+
+### NetworkConfig.ps1:
+- Combined utility
+- Status checking
+- Static IP configuration
+- DHCP configuration
+- Adapter selection
+
+## ⚠️ Important Notes:
+
+1. **Run as Administrator** - Network configuration requires elevated privileges
+2. **Backup Current Settings** - Save your current IP settings before changing
+3. **Test Connectivity** - Verify network connectivity after changes
+4. **Adapter Selection** - Scripts automatically select the first active physical adapter
+
+## 🚀 Quick Start:
+
+1. **Check current status:**
+   ```cmd
+   network_config.bat status
+   ```
+
+2. **Set static IP:**
+   ```cmd
+   set_static_ip.bat 192.168.1.100 255.255.255.0 192.168.1.1
+   ```
+
+3. **Set back to DHCP:**
+   ```cmd
+   set_dhcp.bat
+   ```
+
+All scripts include error handling, validation, and user confirmation prompts for safety!
