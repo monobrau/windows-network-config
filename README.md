@@ -16,19 +16,60 @@ A comprehensive PowerShell script for analyzing Windows autoruns, scheduled task
 
 ## 📋 Quick Start
 
-### Option 1: Interactive Menu
+### Option 1: Run Directly from GitHub (No Download Required)
+```powershell
+# Download and run in one command
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"; .\autorun.ps1
+
+# Or using PowerShell's direct execution
+iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1')
+```
+
+### Option 2: Interactive Menu
 ```cmd
 run_autorun_analyzer_universal.bat
 ```
 
-### Option 2: Simple One-Click
+### Option 3: Simple One-Click
 ```cmd
 run_autorun_analyzer_simple.bat
 ```
 
-### Option 3: Direct PowerShell
+### Option 4: Direct PowerShell
 ```powershell
 .\WindowsAutorunAnalyzer_Universal.ps1
+```
+
+## 🌐 Running from GitHub
+
+### Method 1: One-Line Download and Execute
+```powershell
+# Download and run immediately
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"; .\autorun.ps1
+```
+
+### Method 2: Direct Execution (No File Saved)
+```powershell
+# Execute directly from GitHub without saving file
+iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1')
+```
+
+### Method 3: Using the Script's GitHub Mode
+```powershell
+# Download the script first, then use GitHub mode
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"
+.\autorun.ps1 -Mode github
+```
+
+### Method 4: Batch File for GitHub
+Create a file called `run_from_github.bat`:
+```batch
+@echo off
+echo Downloading Windows Autorun Analyzer from GitHub...
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1' -OutFile 'autorun.ps1'"
+echo Running analysis...
+powershell -ExecutionPolicy Bypass -File "autorun.ps1"
+pause
 ```
 
 ## 🔧 Usage
@@ -135,22 +176,35 @@ The script generates a CSV file with the following columns:
 
 ## 🚀 Enterprise Deployment
 
+### GitHub-Based Deployment
+```powershell
+# Deploy directly from GitHub (no local files needed)
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"
+.\autorun.ps1 -Mode portable -OutputPath "C:\reports\analysis.csv"
+
+# For GPO deployment, create a startup script that downloads from GitHub
+```
+
 ### Group Policy
 ```powershell
 # Deploy via GPO with share mode
 .\WindowsAutorunAnalyzer_Universal.ps1 -Mode share -SharePath "\\domain\scripts\autorun.ps1"
+
+# Or use GitHub mode for always-latest version
+.\WindowsAutorunAnalyzer_Universal.ps1 -Mode github
 ```
 
 ### Scheduled Tasks
 ```powershell
-# Daily analysis
-.\WindowsAutorunAnalyzer_Universal.ps1 -OutputPath "C:\monitoring\daily_$(Get-Date -Format 'yyyyMMdd').csv"
+# Daily analysis from GitHub
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "daily_autorun.ps1"
+.\daily_autorun.ps1 -OutputPath "C:\monitoring\daily_$(Get-Date -Format 'yyyyMMdd').csv"
 ```
 
 ### Incident Response
 ```powershell
-# Quick analysis
-.\WindowsAutorunAnalyzer_Universal.ps1 -Mode portable -OutputPath "C:\incident\analysis.csv"
+# Quick analysis from GitHub
+iex (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1')
 ```
 
 ## 🔧 Requirements
