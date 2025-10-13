@@ -7,7 +7,7 @@ Copy and paste any of these commands to download and run the script:
 
 ### Method 1: Download and Execute (Recommended)
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"; .\autorun.ps1
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Universal.ps1" -OutFile "autorun.ps1"; .\autorun.ps1 -Mode portable
 ```
 
 ### Method 2: Direct Execution (No File Saved)

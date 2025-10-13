@@ -482,17 +482,35 @@ switch ($Mode.ToLower()) {
     "auto" {
         Write-Status "Auto mode: Detecting best method..." "Yellow"
         
-        # Try GitHub first if internet is available
-        if (Test-InternetConnection) {
-            Write-Status "Internet detected, trying GitHub..." "Green"
-            try {
-                $scriptContent = Invoke-WebRequest -Uri $GitHubUrl -UseBasicParsing
-                $scriptPath = Join-Path $outputDir "WindowsAutorunAnalyzer_Auto.ps1"
-                $scriptContent.Content | Out-File -FilePath $scriptPath -Encoding UTF8
-                Write-Status "Script downloaded from GitHub" "Green"
-                $success = $true
-            } catch {
-                Write-Status "GitHub failed, trying local..." "Yellow"
+        # Check if we're already running from GitHub (prevent infinite loop)
+        $currentScriptPath = $MyInvocation.PSCommandPath
+        if ($currentScriptPath -and $currentScriptPath -match "WindowsAutorunAnalyzer.*\.ps1$") {
+            Write-Status "Already running from downloaded script, using portable mode..." "Green"
+            $csvPath = Start-AutorunAnalysis -OutputPath $OutputPath
+            $success = $true
+        } else {
+            # Try GitHub first if internet is available
+            if (Test-InternetConnection) {
+                Write-Status "Internet detected, trying GitHub..." "Green"
+                try {
+                    $scriptContent = Invoke-WebRequest -Uri $GitHubUrl -UseBasicParsing
+                    $scriptPath = Join-Path $outputDir "WindowsAutorunAnalyzer_Auto.ps1"
+                    $scriptContent.Content | Out-File -FilePath $scriptPath -Encoding UTF8
+                    Write-Status "Script downloaded from GitHub" "Green"
+                    $success = $true
+                } catch {
+                    Write-Status "GitHub failed, trying local..." "Yellow"
+                    if (Test-Path $LocalPath) {
+                        $scriptPath = $LocalPath
+                        $success = $true
+                    } else {
+                        Write-Status "Local not found, using portable mode..." "Yellow"
+                        $csvPath = Start-AutorunAnalysis -OutputPath $OutputPath
+                        $success = $true
+                    }
+                }
+            } else {
+                Write-Status "No internet, trying local..." "Yellow"
                 if (Test-Path $LocalPath) {
                     $scriptPath = $LocalPath
                     $success = $true
@@ -501,16 +519,6 @@ switch ($Mode.ToLower()) {
                     $csvPath = Start-AutorunAnalysis -OutputPath $OutputPath
                     $success = $true
                 }
-            }
-        } else {
-            Write-Status "No internet, trying local..." "Yellow"
-            if (Test-Path $LocalPath) {
-                $scriptPath = $LocalPath
-                $success = $true
-            } else {
-                Write-Status "Local not found, using portable mode..." "Yellow"
-                $csvPath = Start-AutorunAnalysis -OutputPath $OutputPath
-                $success = $true
             }
         }
     }
