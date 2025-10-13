@@ -48,7 +48,7 @@ function Get-PhysicalAdapters {
         if ($adapter.Status -ne "Up") { continue }
         
         # Get adapter details
-        $adapterDetails = Get-NetAdapterHardwareInfo -InterfaceIndex $adapter.InterfaceIndex -ErrorAction SilentlyContinue
+        $adapterDetails = Get-NetAdapterHardwareInfo | Where-Object { $_.InterfaceIndex -eq $adapter.InterfaceIndex } -ErrorAction SilentlyContinue
         
         # Check if it's a physical adapter by examining various properties
         $isPhysical = $false
