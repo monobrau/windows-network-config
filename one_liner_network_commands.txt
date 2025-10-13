@@ -1,0 +1,77 @@
+Windows Network Configuration - One-Liner Commands
+=================================================
+
+Copy and paste any of these commands to download and run network configuration:
+
+## 🚀 Set DHCP (One-Liner)
+
+### PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/Set-DHCP.ps1" -OutFile "Set-DHCP.ps1"; .\Set-DHCP.ps1; del Set-DHCP.ps1
+```
+
+### Command Prompt:
+```cmd
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/Set-DHCP.ps1' -OutFile 'Set-DHCP.ps1'; .\Set-DHCP.ps1; del Set-DHCP.ps1"
+```
+
+## 🚀 Set Static IP (One-Liner)
+
+### PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/Set-StaticIP.ps1" -OutFile "Set-StaticIP.ps1"; .\Set-StaticIP.ps1 -IPAddress "192.168.1.100" -SubnetMask "255.255.255.0" -Gateway "192.168.1.1"; del Set-StaticIP.ps1
+```
+
+### Command Prompt:
+```cmd
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/Set-StaticIP.ps1' -OutFile 'Set-StaticIP.ps1'; .\Set-StaticIP.ps1 -IPAddress '192.168.1.100' -SubnetMask '255.255.255.0' -Gateway '192.168.1.1'; del Set-StaticIP.ps1"
+```
+
+## 🚀 Check Network Status (One-Liner)
+
+### PowerShell:
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/NetworkConfig.ps1" -OutFile "NetworkConfig.ps1"; .\NetworkConfig.ps1 -Action status; del NetworkConfig.ps1
+```
+
+### Command Prompt:
+```cmd
+powershell -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/NetworkConfig.ps1' -OutFile 'NetworkConfig.ps1'; .\NetworkConfig.ps1 -Action status; del NetworkConfig.ps1"
+```
+
+## 🚀 Standalone Batch Files (One-Liner)
+
+### Download and Run DHCP:
+```cmd
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/set_dhcp_standalone.bat" -OutFile "set_dhcp.bat"; .\set_dhcp.bat
+```
+
+### Download and Run Static IP:
+```cmd
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/set_static_ip_standalone.bat" -OutFile "set_static_ip.bat"; .\set_static_ip.bat 192.168.1.100 255.255.255.0 192.168.1.1
+```
+
+### Download and Run Network Config:
+```cmd
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/network_config_standalone.bat" -OutFile "network_config.bat"; .\network_config.bat status
+```
+
+## 📋 What Each Command Does:
+
+1. **Downloads** the required script from GitHub
+2. **Runs** the network configuration
+3. **Cleans up** by deleting the downloaded file
+4. **No local files** left behind
+
+## ⚠️ Requirements:
+
+- **Administrator privileges** (run as admin)
+- **Internet connectivity** for download
+- **PowerShell execution policy** that allows scripts
+
+## 🎯 Perfect For:
+
+- **Quick network changes** without local files
+- **Remote deployment** via email or chat
+- **Troubleshooting** network issues
+- **Temporary configuration** changes
