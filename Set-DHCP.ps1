@@ -1,15 +1,15 @@
 # Set Network Adapter to DHCP
 # This script configures the primary physical network adapter to use DHCP
+# Version: 1.0.0
 
 param(
     [string]$AdapterName = "",
     [switch]$Help
 )
 
-function Write-Status {
-    param($Message, $Color = "White")
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $Message" -ForegroundColor $Color
-}
+# Import shared helper functions
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+. "$scriptPath\NetworkAdapterHelpers.ps1"
 
 function Show-Help {
     Write-Host @"
@@ -34,67 +34,19 @@ if ($Help) {
     exit 0
 }
 
+# Check for administrator privileges
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Status "ERROR: This script requires Administrator privileges" "Red"
+    Write-Status "Please right-click PowerShell and select 'Run as Administrator'" "Yellow"
+    exit 1
+}
+
 Write-Status "Setting Network Adapter to DHCP" "Cyan"
 Write-Status "=================================" "Cyan"
 Write-Status ""
 
-# Function to identify physical adapters (Ethernet and Wireless only)
-function Get-PhysicalAdapters {
-    $allAdapters = Get-NetAdapter
-    $physicalAdapters = @()
-    
-    foreach ($adapter in $allAdapters) {
-        # Skip if adapter is not up
-        if ($adapter.Status -ne "Up") { continue }
-        
-        # Get adapter details
-        $adapterDetails = Get-NetAdapterHardwareInfo -Name $adapter.Name -ErrorAction SilentlyContinue
-        
-        # Check if it's a physical adapter by examining various properties
-        $isPhysical = $false
-        
-        # Method 1: Check PhysicalMediaType for Ethernet or Wireless
-        if ($adapter.PhysicalMediaType -eq "802.11" -or $adapter.PhysicalMediaType -eq "Ethernet") {
-            $isPhysical = $true
-        }
-        
-        # Method 2: Check InterfaceDescription for common physical adapter patterns
-        $description = $adapter.InterfaceDescription.ToLower()
-        if ($description -match "ethernet|wireless|wi-fi|wifi|802\.11|realtek|intel|broadcom|qualcomm|atheros|marvell") {
-            $isPhysical = $true
-        }
-        
-        # Method 3: Exclude known virtual/VPN adapters
-        $excludePatterns = @(
-            "virtual", "vpn", "tunnel", "tap", "tun", "ppp", "pptp", "l2tp", "openvpn", 
-            "wireguard", "nordvpn", "expressvpn", "surfshark", "proton", "mullvad",
-            "hyper-v", "vmware", "virtualbox", "docker", "wsl", "loopback", "isatap",
-            "teredo", "6to4", "microsoft", "ras", "remote access", "miniport"
-        )
-        
-        $isExcluded = $false
-        foreach ($pattern in $excludePatterns) {
-            if ($description -match $pattern) {
-                $isExcluded = $true
-                break
-            }
-        }
-        
-        # Method 4: Check if adapter has physical hardware info
-        if ($adapterDetails -and $adapterDetails.PciDeviceId -and $adapterDetails.PciDeviceId -ne "Unknown") {
-            $isPhysical = $true
-        }
-        
-        # Final decision: physical if not excluded and meets physical criteria
-        if ($isPhysical -and -not $isExcluded) {
-            $physicalAdapters += $adapter
-        }
-    }
-    
-    return $physicalAdapters
-}
-
-# Get physical network adapters only
+# Get physical network adapters only (function imported from NetworkAdapterHelpers.ps1)
 Write-Status "Finding physical network adapters..." "Yellow"
 $adapters = Get-PhysicalAdapters
 
@@ -158,12 +110,11 @@ try {
     
     Write-Status "DHCP configuration completed successfully!" "Green"
     Write-Status ""
-    
-    # Request new IP from DHCP
+
+    # Restart adapter to request new DHCP lease (adapter-specific)
     Write-Status "Requesting new IP from DHCP server..." "Yellow"
-    ipconfig /release
-    ipconfig /renew
-    
+    Restart-NetAdapter -Name $adapter.Name -Confirm:$false
+
     Write-Status ""
     
     # Verify configuration

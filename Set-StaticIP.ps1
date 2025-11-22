@@ -1,26 +1,26 @@
 # Set Network Adapter to Static IP
 # This script configures the primary physical network adapter with a static IP address
+# Version: 1.0.0
 
 param(
     [Parameter(Mandatory=$true)]
     [string]$IPAddress,
-    
+
     [Parameter(Mandatory=$true)]
     [string]$SubnetMask,
-    
+
     [Parameter(Mandatory=$true)]
     [string]$Gateway,
-    
+
     [string]$DNS1 = "8.8.8.8",
     [string]$DNS2 = "8.8.4.4",
     [string]$AdapterName = "",
     [switch]$Help
 )
 
-function Write-Status {
-    param($Message, $Color = "White")
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] $Message" -ForegroundColor $Color
-}
+# Import shared helper functions
+$scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
+. "$scriptPath\NetworkAdapterHelpers.ps1"
 
 function Show-Help {
     Write-Host @"
@@ -52,25 +52,30 @@ if ($Help) {
     exit 0
 }
 
-# Validate IP addresses
-function Test-IPAddress {
-    param($IP)
-    try {
-        [System.Net.IPAddress]::Parse($IP) | Out-Null
-        return $true
-    } catch {
-        return $false
-    }
+# Check for administrator privileges
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if (-not $isAdmin) {
+    Write-Status "ERROR: This script requires Administrator privileges" "Red"
+    Write-Status "Please right-click PowerShell and select 'Run as Administrator'" "Yellow"
+    exit 1
 }
 
-# Validate required parameters
+# Validate required parameters (helper functions imported from NetworkAdapterHelpers.ps1)
 if (-not (Test-IPAddress $IPAddress)) {
     Write-Status "Invalid IP address: $IPAddress" "Red"
     exit 1
 }
 
-if (-not (Test-IPAddress $SubnetMask)) {
+# Validate and convert subnet mask
+try {
+    $prefixLength = ConvertTo-PrefixLength -SubnetMask $SubnetMask
+    if ($prefixLength -lt 0 -or $prefixLength -gt 32) {
+        Write-Status "Invalid subnet mask/prefix length: $SubnetMask (must be 0-32)" "Red"
+        exit 1
+    }
+} catch {
     Write-Status "Invalid subnet mask: $SubnetMask" "Red"
+    Write-Status "Use dotted-decimal (e.g., 255.255.255.0) or CIDR notation (e.g., 24)" "Yellow"
     exit 1
 }
 
@@ -93,63 +98,7 @@ Write-Status "Setting Network Adapter to Static IP" "Cyan"
 Write-Status "=====================================" "Cyan"
 Write-Status ""
 
-# Function to identify physical adapters (Ethernet and Wireless only)
-function Get-PhysicalAdapters {
-    $allAdapters = Get-NetAdapter
-    $physicalAdapters = @()
-    
-    foreach ($adapter in $allAdapters) {
-        # Skip if adapter is not up
-        if ($adapter.Status -ne "Up") { continue }
-        
-        # Get adapter details
-        $adapterDetails = Get-NetAdapterHardwareInfo -Name $adapter.Name -ErrorAction SilentlyContinue
-        
-        # Check if it's a physical adapter by examining various properties
-        $isPhysical = $false
-        
-        # Method 1: Check PhysicalMediaType for Ethernet or Wireless
-        if ($adapter.PhysicalMediaType -eq "802.11" -or $adapter.PhysicalMediaType -eq "Ethernet") {
-            $isPhysical = $true
-        }
-        
-        # Method 2: Check InterfaceDescription for common physical adapter patterns
-        $description = $adapter.InterfaceDescription.ToLower()
-        if ($description -match "ethernet|wireless|wi-fi|wifi|802\.11|realtek|intel|broadcom|qualcomm|atheros|marvell") {
-            $isPhysical = $true
-        }
-        
-        # Method 3: Exclude known virtual/VPN adapters
-        $excludePatterns = @(
-            "virtual", "vpn", "tunnel", "tap", "tun", "ppp", "pptp", "l2tp", "openvpn", 
-            "wireguard", "nordvpn", "expressvpn", "surfshark", "proton", "mullvad",
-            "hyper-v", "vmware", "virtualbox", "docker", "wsl", "loopback", "isatap",
-            "teredo", "6to4", "microsoft", "ras", "remote access", "miniport"
-        )
-        
-        $isExcluded = $false
-        foreach ($pattern in $excludePatterns) {
-            if ($description -match $pattern) {
-                $isExcluded = $true
-                break
-            }
-        }
-        
-        # Method 4: Check if adapter has physical hardware info
-        if ($adapterDetails -and $adapterDetails.PciDeviceId -and $adapterDetails.PciDeviceId -ne "Unknown") {
-            $isPhysical = $true
-        }
-        
-        # Final decision: physical if not excluded and meets physical criteria
-        if ($isPhysical -and -not $isExcluded) {
-            $physicalAdapters += $adapter
-        }
-    }
-    
-    return $physicalAdapters
-}
-
-# Get physical network adapters only
+# Get physical network adapters only (function imported from NetworkAdapterHelpers.ps1)
 Write-Status "Finding physical network adapters..." "Yellow"
 $adapters = Get-PhysicalAdapters
 
@@ -190,7 +139,7 @@ Write-Status ""
 # Display new configuration
 Write-Status "New Configuration:" "Yellow"
 Write-Status "  IP Address: $IPAddress" "White"
-Write-Status "  Subnet Mask: $SubnetMask" "White"
+Write-Status "  Subnet Mask: $SubnetMask (/$prefixLength)" "White"
 Write-Status "  Gateway: $Gateway" "White"
 Write-Status "  DNS: $DNS1, $DNS2" "White"
 Write-Status ""
@@ -212,7 +161,7 @@ try {
     
     # Set static IP
     Write-Status "Setting static IP address..." "Yellow"
-    New-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -IPAddress $IPAddress -PrefixLength $SubnetMask -DefaultGateway $Gateway
+    New-NetIPAddress -InterfaceIndex $adapter.InterfaceIndex -IPAddress $IPAddress -PrefixLength $prefixLength -DefaultGateway $Gateway
     
     # Set DNS servers
     Write-Status "Setting DNS servers..." "Yellow"

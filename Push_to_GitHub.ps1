@@ -1,10 +1,11 @@
-# PowerShell script to help push Windows Autorun Analyzer to GitHub
+# PowerShell script to help push Windows Network Configuration Scripts to GitHub
 # Run this script to automate the GitHub deployment process
+# Version: 1.0.0
 
 param(
     [string]$GitHubUsername = "",
-    [string]$RepositoryName = "windows-autorun-analyzer",
-    [string]$CommitMessage = "Initial commit: Universal Windows Autorun Analyzer"
+    [string]$RepositoryName = "windows-network-config",
+    [string]$CommitMessage = "Update: Windows Network Configuration Scripts"
 )
 
 function Write-Status {
@@ -101,30 +102,29 @@ function Push-to-GitHub {
     }
 }
 
-function Update-ScriptGitHubUrl {
+function Update-ReadmeGitHubUrl {
     param($Username, $RepoName)
-    
-    $scriptFile = "WindowsAutorunAnalyzer_Universal.ps1"
-    $newUrl = "https://raw.githubusercontent.com/$Username/$RepoName/main/WindowsAutorunAnalyzer_Universal.ps1"
-    
-    if (Test-Path $scriptFile) {
-        Write-Status "Updating GitHub URL in script..." "Yellow"
-        
-        $content = Get-Content $scriptFile -Raw
-        $updatedContent = $content -replace 'https://raw\.githubusercontent\.com/yourusername/windows-autorun-analyzer/main/WindowsAutorunAnalyzer_Portable\.ps1', $newUrl
-        
+
+    $readmeFile = "README.md"
+
+    if (Test-Path $readmeFile) {
+        Write-Status "Updating GitHub URLs in README..." "Yellow"
+
+        $content = Get-Content $readmeFile -Raw
+        $updatedContent = $content -replace 'https://raw\.githubusercontent\.com/monobrau/windows-network-config/', "https://raw.githubusercontent.com/$Username/$RepoName/"
+
         if ($content -ne $updatedContent) {
-            $updatedContent | Set-Content $scriptFile -NoNewline
-            Write-Status "GitHub URL updated in script" "Green"
+            $updatedContent | Set-Content $readmeFile -NoNewline
+            Write-Status "GitHub URLs updated in README" "Green"
         } else {
-            Write-Status "GitHub URL already correct" "Green"
+            Write-Status "GitHub URLs already correct" "Green"
         }
     }
 }
 
 # Main execution
-Write-Status "Windows Autorun Analyzer - GitHub Deployment Helper" "Cyan"
-Write-Status "=================================================" "Cyan"
+Write-Status "Windows Network Configuration - GitHub Deployment Helper" "Cyan"
+Write-Status "=========================================================" "Cyan"
 
 # Check if Git is installed
 if (-not (Test-GitInstalled)) {
@@ -158,30 +158,30 @@ if ($confirm -ne "y" -and $confirm -ne "Y") {
 try {
     # Step 1: Initialize Git repository
     Initialize-GitRepository
-    
-    # Step 2: Update script with correct GitHub URL
-    Update-ScriptGitHubUrl -Username $GitHubUsername -RepoName $RepositoryName
-    
+
+    # Step 2: Update README with correct GitHub URLs
+    Update-ReadmeGitHubUrl -Username $GitHubUsername -RepoName $RepositoryName
+
     # Step 3: Add files to Git
     Add-GitFiles
-    
+
     # Step 4: Commit changes
     Commit-Changes -Message $CommitMessage
-    
+
     # Step 5: Set remote origin
     Set-RemoteOrigin -Username $GitHubUsername -RepoName $RepositoryName
-    
+
     # Step 6: Push to GitHub
     Push-to-GitHub
-    
+
     Write-Status ""
     Write-Status "🎉 GitHub deployment completed!" "Green"
     Write-Status ""
     Write-Status "Next steps:" "Cyan"
     Write-Status "1. Go to https://github.com/$GitHubUsername/$RepositoryName" "Yellow"
     Write-Status "2. Verify all files are uploaded" "Yellow"
-    Write-Status "3. Test the GitHub download:" "Yellow"
-    Write-Status "   .\WindowsAutorunAnalyzer_Universal.ps1 -Mode github" "Cyan"
+    Write-Status "3. Test the scripts:" "Yellow"
+    Write-Status "   .\NetworkConfig.ps1 -Action status" "Cyan"
     Write-Status "4. Share your repository!" "Yellow"
     
 } catch {
