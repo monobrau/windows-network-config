@@ -198,7 +198,6 @@ function Get-TicketNotesTemplate {
     $lines = $content -split "`r?`n"
     
     $result = @()
-    $inTemplate = $false
     $foundHeader = $false
     
     foreach ($line in $lines) {
@@ -216,13 +215,15 @@ function Get-TicketNotesTemplate {
                     break
                 }
             } else {
+                # Preserve empty lines and all content
                 $result += $line
             }
         }
     }
     
     if ($result.Count -gt 0) {
-        return ($result -join "`n").Trim()
+        # Join with proper line breaks (Windows uses CRLF)
+        return ($result -join "`r`n").Trim()
     }
     
     return $null
@@ -265,7 +266,11 @@ function Show-TicketNotesPopup {
         $textBox.ReadOnly = $true
         $textBox.ScrollBars = "Vertical"
         $textBox.Font = New-Object System.Drawing.Font("Consolas", 9)
-        $textBox.Text = $template
+        $textBox.WordWrap = $true
+        $textBox.AcceptsReturn = $true
+        $textBox.AcceptsTab = $false
+        # Ensure line breaks are preserved
+        $textBox.Text = $template -replace "`r`n", "`r`n" -replace "`n", "`r`n"
         $textBox.Dock = [System.Windows.Forms.DockStyle]::Fill
         $popupForm.Controls.Add($textBox)
         
