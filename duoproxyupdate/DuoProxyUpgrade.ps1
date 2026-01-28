@@ -167,16 +167,17 @@ function Clear-Notification {
 function Get-TicketNotesTemplate {
     param([string]$TemplateName)
     
-    $scriptPath = Split-Path -Parent $MyInvocation.PSCommandPath
-    $notesFile = Join-Path $scriptPath "TICKET_NOTES.txt"
+    # Use temp folder for ticket notes (works when script is executed from memory)
+    $notesFile = Join-Path $env:TEMP "DuoProxyUpgrade_TICKET_NOTES.txt"
     
-    if (-not (Test-Path $notesFile)) {
-        # Try to download from GitHub if local file doesn't exist
-        try {
-            $url = "https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/TICKET_NOTES.txt"
-            $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
-            $content | Out-File -FilePath $notesFile -Encoding UTF8
-        } catch {
+    # Always try to download from GitHub first (ensures latest version)
+    try {
+        $url = "https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/TICKET_NOTES.txt"
+        $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
+        $content | Out-File -FilePath $notesFile -Encoding UTF8 -Force
+    } catch {
+        # If download fails and file doesn't exist, return null
+        if (-not (Test-Path $notesFile)) {
             return $null
         }
     }
