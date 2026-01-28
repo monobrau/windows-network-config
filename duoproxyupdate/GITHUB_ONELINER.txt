@@ -4,7 +4,7 @@ ONE-LINER COMMANDS TO DOWNLOAD & EXECUTE FROM GITHUB
 
 POWERSHELL ONE-LINER (Copy & Paste - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$content=(Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content;$utf8=[System.Text.UTF8Encoding]::new($false);[System.IO.File]::WriteAllText(\"$env:TEMP\DuoProxyUpgrade.ps1\",$content,$utf8);& \"$env:TEMP\DuoProxyUpgrade.ps1\""
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$content=(Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content;$content|Out-File -FilePath \"$env:TEMP\DuoProxyUpgrade.ps1\" -Encoding UTF8 -NoNewline;& \"$env:TEMP\DuoProxyUpgrade.ps1\""
 
 POWERSHELL ONE-LINER (Shorter - Direct Execution - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
