@@ -67,6 +67,13 @@ function Open-DuoDownloads {
     Show-Notification "Opening Duo Downloads page..."
 }
 
+# Function: Open Duo Extension Request Form
+function Open-DuoExtensionRequest {
+    $ExtensionRequestURL = "https://forms.office.com/Pages/ResponsePage.aspx?id=Yq_hWgWVl0CmmsFVPveEDmQIDgdgnLhBu69G_56G_x1UMDM1T0NUMVdYV0M1Rks0NVRHREtST0hEMC4u"
+    Start-Process $ExtensionRequestURL
+    Show-Notification "Opening Duo Extension Request form..."
+}
+
 # Function: Backup Config File
 function Backup-ConfigFile {
     # Try new path first (5.6.0+), then old path
@@ -290,7 +297,7 @@ Add-Type -AssemblyName System.Drawing
 # Create Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Duo Proxy Upgrade Helper"
-$form.Size = New-Object System.Drawing.Size(400, 750)
+$form.Size = New-Object System.Drawing.Size(400, 800)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -385,6 +392,17 @@ $btnBothPaths.Size = New-Object System.Drawing.Size(360, $buttonHeight)
 $btnBothPaths.Font = New-Object System.Drawing.Font("Segoe UI", 9)
 $btnBothPaths.Add_Click({ Open-BothConfigPaths })
 $form.Controls.Add($btnBothPaths)
+$buttonY += $buttonSpacing
+
+# Button 7: Request Duo Extension
+$btnExtensionRequest = New-Object System.Windows.Forms.Button
+$btnExtensionRequest.Text = "Request Duo Extension (If upgrade impossible)"
+$btnExtensionRequest.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnExtensionRequest.Size = New-Object System.Drawing.Size(360, $buttonHeight)
+$btnExtensionRequest.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+$btnExtensionRequest.BackColor = [System.Drawing.Color]::LightYellow
+$btnExtensionRequest.Add_Click({ Open-DuoExtensionRequest })
+$form.Controls.Add($btnExtensionRequest)
 $buttonY += $buttonSpacing
 
 # Separator Label
@@ -493,7 +511,7 @@ $buttonY += $smallButtonSpacing
 
 # Info Label
 $infoLabel = New-Object System.Windows.Forms.Label
-$infoLabel.Text = "Click buttons above or use keyboard shortcuts`n(Requires form focus for F1-F6)"
+$infoLabel.Text = "Click buttons above or use keyboard shortcuts`n(Requires form focus for F1-F6 hotkeys)"
 $infoLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
 $infoLabel.ForeColor = [System.Drawing.Color]::DarkGray
 $infoLabelY = $buttonY + 10
