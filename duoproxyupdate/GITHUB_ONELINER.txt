@@ -1,0 +1,33 @@
+═══════════════════════════════════════════════════════════════
+ONE-LINER COMMANDS TO DOWNLOAD & EXECUTE FROM GITHUB
+═══════════════════════════════════════════════════════════════
+
+POWERSHELL ONE-LINER (Copy & Paste):
+───────────────────────────────────────────────────────────────
+powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -OutFile $env:TEMP\DuoProxyUpgrade.ps1 -UseBasicParsing; & $env:TEMP\DuoProxyUpgrade.ps1"
+
+POWERSHELL ONE-LINER (Shorter - Direct Execution):
+───────────────────────────────────────────────────────────────
+powershell.exe -ExecutionPolicy Bypass -Command "iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
+
+CMD/BATCH ONE-LINER:
+───────────────────────────────────────────────────────────────
+powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -OutFile %TEMP%\DuoProxyUpgrade.ps1 -UseBasicParsing && powershell.exe -ExecutionPolicy Bypass -File %TEMP%\DuoProxyUpgrade.ps1"
+
+═══════════════════════════════════════════════════════════════
+USAGE:
+───────────────────────────────────────────────────────────────
+1. Copy one of the commands above
+2. Paste into PowerShell or CMD prompt
+3. Press Enter
+4. Script downloads and executes automatically
+
+═══════════════════════════════════════════════════════════════
+NOTES:
+───────────────────────────────────────────────────────────────
+- Update GitHub URL if repository/branch differs
+- First command downloads to temp folder then executes
+- Second command executes directly from memory (no temp file)
+- Third command works from CMD/Batch files
+
+═══════════════════════════════════════════════════════════════
