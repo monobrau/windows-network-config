@@ -691,7 +691,7 @@ $buttonY += $buttonSpacing
 
 # Button 8: Copy Config Line
 $btnCopyConfig = New-Object System.Windows.Forms.Button
-$btnCopyConfig.Text = "Copy Config Line: force_message_authenticator=true"
+$btnCopyConfig.Text = "Copy Config: force_message_authenticator=true"
 $btnCopyConfig.Location = New-Object System.Drawing.Point(20, $buttonY)
 $btnCopyConfig.Size = New-Object System.Drawing.Size(360, $buttonHeight)
 $btnCopyConfig.Font = New-Object System.Drawing.Font("Segoe UI", 9)
