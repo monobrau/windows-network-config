@@ -8,7 +8,11 @@ powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::Secu
 
 POWERSHELL ONE-LINER (Shorter - Direct Execution - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $rnd = Get-Random; $url = 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1?r=' + $rnd; iex (Invoke-WebRequest -Uri $url -UseBasicParsing).Content"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;iex((Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content)"
+
+ALTERNATIVE (Download to file first - bypasses cache issues):
+───────────────────────────────────────────────────────────────
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$ts=Get-Date -Format 'yyyyMMddHHmmss';Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile \"$env:TEMP\DuoProxyUpgrade_$ts.ps1\" -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File \"$env:TEMP\DuoProxyUpgrade_$ts.ps1\""
 
 CMD/BATCH ONE-LINER (PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
