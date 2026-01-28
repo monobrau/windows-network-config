@@ -130,6 +130,14 @@ function Open-DuoExtensionRequest {
     Show-Notification "Opening Duo Extension Request form..."
 }
 
+# Function: Copy Config Line to Clipboard
+function Copy-ConfigLineToClipboard {
+    $configLine = "force_message_authenticator=true"
+    Set-Clipboard -Value $configLine
+    Show-Notification "Copied config line to clipboard: $configLine"
+    [System.Console]::Beep(600, 150)
+}
+
 # Function: Backup Config File
 function Backup-ConfigFile {
     # Use helper function to get active config path
@@ -553,7 +561,7 @@ Add-Type -AssemblyName System.Drawing
 # Create Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Duo Proxy Upgrade Helper"
-$form.Size = New-Object System.Drawing.Size(400, 835)
+$form.Size = New-Object System.Drawing.Size(400, 885)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -679,6 +687,17 @@ $btnExtensionRequest.Font = New-Object System.Drawing.Font("Segoe UI", 9)
 $btnExtensionRequest.BackColor = [System.Drawing.Color]::LightYellow
 $btnExtensionRequest.Add_Click({ Open-DuoExtensionRequest })
 $form.Controls.Add($btnExtensionRequest)
+$buttonY += $buttonSpacing
+
+# Button 8: Copy Config Line
+$btnCopyConfig = New-Object System.Windows.Forms.Button
+$btnCopyConfig.Text = "Copy Config Line: force_message_authenticator=true"
+$btnCopyConfig.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnCopyConfig.Size = New-Object System.Drawing.Size(360, $buttonHeight)
+$btnCopyConfig.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+$btnCopyConfig.BackColor = [System.Drawing.Color]::LightBlue
+$btnCopyConfig.Add_Click({ Copy-ConfigLineToClipboard })
+$form.Controls.Add($btnCopyConfig)
 $buttonY += $buttonSpacing
 
 # Separator Label
