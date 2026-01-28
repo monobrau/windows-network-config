@@ -8,7 +8,7 @@ powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::Secu
 
 POWERSHELL ONE-LINER (Shorter - Direct Execution - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; $url = 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1?t=' + [DateTimeOffset]::Now.ToUnixTimeSeconds(); iex (Invoke-WebRequest -Uri $url -UseBasicParsing).Content"
 
 CMD/BATCH ONE-LINER (PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
