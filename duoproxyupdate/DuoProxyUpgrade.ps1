@@ -171,6 +171,91 @@ function Clear-Notification {
     }
 }
 
+# Function: Get Environment Information
+function Get-EnvironmentInfo {
+    $info = @{}
+    
+    # Server name
+    $info.ServerName = $env:COMPUTERNAME
+    
+    # OS Version
+    try {
+        $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        if ($os) {
+            $info.OSVersion = "$($os.Caption) $($os.Version)"
+        } else {
+            $info.OSVersion = (Get-WmiObject Win32_OperatingSystem).Caption
+        }
+    } catch {
+        $info.OSVersion = "Unknown"
+    }
+    
+    # Duo Proxy Version (try registry first, then service)
+    $duoVersion = $null
+    $regPaths = @(
+        "HKLM:\SOFTWARE\Duo Security\Authentication Proxy",
+        "HKLM:\SOFTWARE\WOW6432Node\Duo Security\Authentication Proxy"
+    )
+    
+    foreach ($regPath in $regPaths) {
+        if (Test-Path $regPath) {
+            try {
+                $version = (Get-ItemProperty -Path $regPath -Name "Version" -ErrorAction SilentlyContinue).Version
+                if ($version) {
+                    $duoVersion = $version
+                    break
+                }
+            } catch {}
+        }
+    }
+    
+    # If not in registry, try to get from service
+    if (-not $duoVersion) {
+        try {
+            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
+            if ($service) {
+                # Try to get version from file version of the service executable
+                $servicePath = (Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'").PathName
+                if ($servicePath -match '"([^"]+)"') {
+                    $exePath = $matches[1]
+                    if (Test-Path $exePath) {
+                        $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+                        if ($fileVersion) {
+                            $duoVersion = $fileVersion
+                        }
+                    }
+                }
+            }
+        } catch {}
+    }
+    
+    $info.DuoProxyVersion = if ($duoVersion) { $duoVersion } else { "Unknown" }
+    
+    # Determine which config path is in use
+    $info.ConfigPath = $null
+    if (Test-Path $ConfigPathNew) {
+        $info.ConfigPath = $ConfigPathNew
+    } elseif (Test-Path $ConfigPathOld) {
+        $info.ConfigPath = $ConfigPathOld
+    }
+    
+    # Config file path
+    if ($info.ConfigPath) {
+        $info.ConfigFilePath = Join-Path $info.ConfigPath $ConfigFile
+    } else {
+        $info.ConfigFilePath = "Not found"
+    }
+    
+    # Desktop path
+    $info.DesktopPath = $DesktopPath
+    
+    # Current date/time
+    $info.CurrentDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $info.CurrentDateShort = Get-Date -Format "yyyy-MM-dd"
+    
+    return $info
+}
+
 # Function: Get Ticket Notes Template
 function Get-TicketNotesTemplate {
     param([string]$TemplateName)
@@ -223,7 +308,20 @@ function Get-TicketNotesTemplate {
     
     if ($result.Count -gt 0) {
         # Join with proper line breaks (Windows uses CRLF)
-        return ($result -join "`r`n").Trim()
+        $template = ($result -join "`r`n").Trim()
+        
+        # Populate template with environment information
+        $envInfo = Get-EnvironmentInfo
+        $template = $template -replace '\{SERVER_NAME\}', $envInfo.ServerName
+        $template = $template -replace '\{OS_VERSION\}', $envInfo.OSVersion
+        $template = $template -replace '\{DUO_PROXY_VERSION\}', $envInfo.DuoProxyVersion
+        $template = $template -replace '\{CONFIG_PATH\}', $envInfo.ConfigPath
+        $template = $template -replace '\{CONFIG_FILE_PATH\}', $envInfo.ConfigFilePath
+        $template = $template -replace '\{DESKTOP_PATH\}', $envInfo.DesktopPath
+        $template = $template -replace '\{CURRENT_DATE\}', $envInfo.CurrentDate
+        $template = $template -replace '\{CURRENT_DATE_SHORT\}', $envInfo.CurrentDateShort
+        
+        return $template
     }
     
     return $null
