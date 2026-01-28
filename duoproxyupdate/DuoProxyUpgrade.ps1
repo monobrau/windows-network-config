@@ -178,13 +178,13 @@ function Get-EnvironmentInfo {
     # Server name
     $info.ServerName = $env:COMPUTERNAME
     
-    # OS Version
+    # OS Version (use WMI for PowerShell 5.x compatibility)
     try {
-        $os = Get-CimInstance Win32_OperatingSystem -ErrorAction SilentlyContinue
+        $os = Get-WmiObject Win32_OperatingSystem -ErrorAction SilentlyContinue
         if ($os) {
-            $info.OSVersion = "$($os.Caption) $($os.Version)"
+            $info.OSVersion = "$($os.Caption) Build $($os.BuildNumber)"
         } else {
-            $info.OSVersion = (Get-WmiObject Win32_OperatingSystem).Caption
+            $info.OSVersion = "Unknown"
         }
     } catch {
         $info.OSVersion = "Unknown"
