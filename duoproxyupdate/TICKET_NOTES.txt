@@ -3,17 +3,17 @@ DUO PROXY UPGRADE - TICKET NOTES (Copy/Paste Template)
 ═══════════════════════════════════════════════════════════════
 
 Task - 
-Upgrade Duo Authentication Proxy on [SERVER_NAME] from version [OLD_VERSION] to [NEW_VERSION].
+Upgrade Duo Authentication Proxy to latest version.
 
 Step(s) performed - 
 1. Connected to target server via ScreenConnect remote session
 2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
 3. Verified current Duo Proxy version using F3 shortcut (Duo Proxy Manager)
 4. Created backup of configuration file using F5 shortcut (Backup Config File)
-   - Backup file saved to Desktop: authproxy_[TIMESTAMP].cfg
+   - Backup file saved to Desktop with timestamp
    - Verified backup file exists and contains configuration data
 5. Opened Duo downloads page using F4 shortcut to access latest installer
-6. Downloaded Duo Authentication Proxy installer version [NEW_VERSION]
+6. Downloaded latest Duo Authentication Proxy installer
 7. Executed installer with default installation settings
 8. Rebooted server as prompted by installer (if required)
 9. Verified new version installed successfully using F3 shortcut (Duo Proxy Manager)
@@ -23,41 +23,39 @@ Step(s) performed -
 13. Closed Duo Proxy Upgrade Helper tool
 
 Is the task resolved - 
-Yes - Duo Authentication Proxy successfully upgraded from version [OLD_VERSION] to version [NEW_VERSION]. Service is running normally and authentication functionality verified. Configuration backup file retained on Desktop for rollback purposes if needed.
+Yes - Duo Authentication Proxy successfully upgraded to latest version. Service is running normally and authentication functionality verified. Configuration backup file retained on Desktop for rollback purposes if needed.
 
 Next step(s) - 
-- Update tracking spreadsheet/documentation with new version number ([NEW_VERSION]) and upgrade completion date
-- Monitor authentication logs for any issues over the next [TIMEFRAME] hours/days
-- Configuration backup file ([BACKUP_FILENAME]) retained on Desktop - can be deleted after [RETENTION_PERIOD] if no issues are observed
+- Update tracking spreadsheet/documentation with upgrade completion date
+- Monitor authentication logs for any issues over the next few hours/days
+- Configuration backup file retained on Desktop - can be deleted after retention period if no issues are observed
 
 ═══════════════════════════════════════════════════════════════
 ALTERNATIVE VERSION (If Issues Encountered)
 ═══════════════════════════════════════════════════════════════
 
 Task - 
-Upgrade Duo Authentication Proxy on [SERVER_NAME] from version [OLD_VERSION] to [NEW_VERSION].
+Upgrade Duo Authentication Proxy to latest version.
 
 Step(s) performed - 
 1. Connected to target server via ScreenConnect remote session
 2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
 3. Verified current Duo Proxy version using F3 shortcut (Duo Proxy Manager)
 4. Created backup of configuration file using F5 shortcut (Backup Config File)
-   - Backup file saved to Desktop: authproxy_[TIMESTAMP].cfg
+   - Backup file saved to Desktop with timestamp
 5. Opened Duo downloads page using F4 shortcut
-6. Downloaded Duo Authentication Proxy installer version [NEW_VERSION]
+6. Downloaded latest Duo Authentication Proxy installer
 7. Executed installer with default installation settings
-8. [ISSUE_DESCRIPTION] encountered during upgrade process
-9. [RESOLUTION_STEPS_TAKEN] to address the issue
+8. Issue encountered during upgrade process
+9. Steps taken to address the issue
 10. Verified Duo Authentication Proxy service status
 11. Tested authentication functionality
 
 Is the task resolved - 
-[YES/NO/PARTIAL] - [DETAILED_STATUS_DESCRIPTION]
+Status - Detailed description of current state
 
 Next step(s) - 
-- [FOLLOW_UP_ACTION_1]
-- [FOLLOW_UP_ACTION_2]
-- [FOLLOW_UP_ACTION_3]
+- Follow-up action items
 - Configuration backup file retained on Desktop for reference
 
 ═══════════════════════════════════════════════════════════════
@@ -65,7 +63,7 @@ MINIMAL VERSION (Quick Reference)
 ═══════════════════════════════════════════════════════════════
 
 Task - 
-Upgrade Duo Authentication Proxy on [SERVER_NAME] to latest version.
+Upgrade Duo Authentication Proxy to latest version.
 
 Step(s) performed - 
 1. Connected via ScreenConnect and launched Duo Proxy Upgrade Helper tool
@@ -78,7 +76,7 @@ Is the task resolved -
 Yes - Upgrade completed successfully. Service running. Configuration backup retained.
 
 Next step(s) - 
-- Update version tracking documentation
+- Update tracking documentation
 - Monitor authentication logs
 
 ═══════════════════════════════════════════════════════════════
@@ -86,33 +84,31 @@ ROLLBACK VERSION (If Rollback Required)
 ═══════════════════════════════════════════════════════════════
 
 Task - 
-Rollback Duo Authentication Proxy on [SERVER_NAME] from version [NEW_VERSION] to version [OLD_VERSION] due to [REASON].
+Rollback Duo Authentication Proxy to previous version due to issues encountered.
 
 Step(s) performed - 
 1. Connected to target server via ScreenConnect remote session
-2. Located configuration backup file on Desktop: [BACKUP_FILE_PATH]
+2. Located configuration backup file on Desktop
 3. Stopped Duo Authentication Proxy service
-4. Uninstalled Duo Proxy version [NEW_VERSION]
-5. Installed previous version [OLD_VERSION]
-6. Restored configuration from backup file [BACKUP_FILENAME]
+4. Uninstalled current Duo Proxy version
+5. Installed previous version
+6. Restored configuration from backup file
 7. Restarted Duo Authentication Proxy service
 8. Verified service is running normally
 9. Tested authentication functionality
 
 Is the task resolved - 
-Yes - Successfully rolled back to version [OLD_VERSION]. Service running and authentication verified.
+Yes - Successfully rolled back to previous version. Service running and authentication verified.
 
 Next step(s) - 
 - Document rollback reason and steps taken
-- Investigate root cause of issues with version [NEW_VERSION]
-- Plan for future upgrade attempt after [RESOLUTION_TIMEFRAME]
+- Investigate root cause of issues encountered
+- Plan for future upgrade attempt after resolution
 
 ═══════════════════════════════════════════════════════════════
 USAGE NOTES:
 ───────────────────────────────────────────────────────────────
-- Replace all [BRACKETED_PLACEHOLDERS] with actual values
 - Adjust steps based on your specific environment and requirements
 - Add or remove steps as needed for your organization's process
-- Include specific error messages, timestamps, or file paths when applicable
+- Include specific error messages or details when applicable
 - Reference related ticket numbers or incident IDs if applicable
-- Customize timeframes and retention periods per your organization's policy
