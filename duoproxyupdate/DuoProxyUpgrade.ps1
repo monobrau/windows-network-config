@@ -190,8 +190,10 @@ function Get-EnvironmentInfo {
         $info.OSVersion = "Unknown"
     }
     
-    # Duo Proxy Version (try registry first, then service)
+    # Duo Proxy Version (try multiple methods)
     $duoVersion = $null
+    
+    # Method 1: Try registry paths
     $regPaths = @(
         "HKLM:\SOFTWARE\Duo Security\Authentication Proxy",
         "HKLM:\SOFTWARE\WOW6432Node\Duo Security\Authentication Proxy"
@@ -200,25 +202,54 @@ function Get-EnvironmentInfo {
     foreach ($regPath in $regPaths) {
         if (Test-Path $regPath) {
             try {
-                $version = (Get-ItemProperty -Path $regPath -Name "Version" -ErrorAction SilentlyContinue).Version
-                if ($version) {
-                    $duoVersion = $version
+                $regProps = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
+                if ($regProps.Version) {
+                    $duoVersion = $regProps.Version
+                    break
+                }
+                if ($regProps.DisplayVersion) {
+                    $duoVersion = $regProps.DisplayVersion
                     break
                 }
             } catch {}
         }
     }
     
-    # If not in registry, try to get from service
+    # Method 2: Try Proxy Manager executable
+    if (-not $duoVersion) {
+        $proxyManagerPaths = @(
+            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
+        )
+        
+        foreach ($exePath in $proxyManagerPaths) {
+            if (Test-Path $exePath) {
+                try {
+                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+                    if ($fileVersion) {
+                        $duoVersion = $fileVersion
+                        break
+                    }
+                } catch {}
+            }
+        }
+    }
+    
+    # Method 3: Try service executable
     if (-not $duoVersion) {
         try {
             $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
             if ($service) {
-                # Try to get version from file version of the service executable
-                $servicePath = (Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'").PathName
-                if ($servicePath -match '"([^"]+)"') {
-                    $exePath = $matches[1]
-                    if (Test-Path $exePath) {
+                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
+                if ($serviceObj -and $serviceObj.PathName) {
+                    $servicePath = $serviceObj.PathName
+                    if ($servicePath -match '"([^"]+)"') {
+                        $exePath = $matches[1]
+                    } elseif ($servicePath -match '^([^\s]+\.exe)') {
+                        $exePath = $matches[1]
+                    }
+                    
+                    if ($exePath -and (Test-Path $exePath)) {
                         $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
                         if ($fileVersion) {
                             $duoVersion = $fileVersion
@@ -229,7 +260,27 @@ function Get-EnvironmentInfo {
         } catch {}
     }
     
-    $info.DuoProxyVersion = if ($duoVersion) { $duoVersion } else { "Unknown" }
+    # Method 4: Try main proxy executable
+    if (-not $duoVersion) {
+        $proxyExePaths = @(
+            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe"
+        )
+        
+        foreach ($exePath in $proxyExePaths) {
+            if (Test-Path $exePath) {
+                try {
+                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+                    if ($fileVersion) {
+                        $duoVersion = $fileVersion
+                        break
+                    }
+                } catch {}
+            }
+        }
+    }
+    
+    $info.DuoProxyVersion = if ($duoVersion) { $duoVersion } else { "Unable to determine - check Duo Proxy Manager" }
     
     # Determine which config path is in use
     $info.ConfigPath = $null
