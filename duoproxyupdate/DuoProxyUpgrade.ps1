@@ -163,6 +163,119 @@ function Clear-Notification {
     }
 }
 
+# Function: Get Ticket Notes Template
+function Get-TicketNotesTemplate {
+    param([string]$TemplateName)
+    
+    $scriptPath = Split-Path -Parent $MyInvocation.PSCommandPath
+    $notesFile = Join-Path $scriptPath "TICKET_NOTES.txt"
+    
+    if (-not (Test-Path $notesFile)) {
+        # Try to download from GitHub if local file doesn't exist
+        try {
+            $url = "https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/TICKET_NOTES.txt"
+            $content = (Invoke-WebRequest -Uri $url -UseBasicParsing).Content
+            $content | Out-File -FilePath $notesFile -Encoding UTF8
+        } catch {
+            return $null
+        }
+    }
+    
+    if (-not (Test-Path $notesFile)) {
+        return $null
+    }
+    
+    $content = Get-Content $notesFile -Raw
+    $templates = $content -split "═══════════════════════════════════════════════════════════════"
+    
+    foreach ($template in $templates) {
+        if ($template -match $TemplateName) {
+            # Extract the template content (between Task and end)
+            $lines = $template -split "`r?`n"
+            $result = @()
+            $inTemplate = $false
+            
+            foreach ($line in $lines) {
+                if ($line -match "^Task -") {
+                    $inTemplate = $true
+                }
+                if ($inTemplate) {
+                    $result += $line
+                }
+                if ($inTemplate -and $line -match "^═══════════════════════════════════════════════════════════════" -and $result.Count -gt 1) {
+                    break
+                }
+            }
+            return ($result -join "`n").Trim()
+        }
+    }
+    
+    return $null
+}
+
+# Function: Copy Ticket Notes to Clipboard
+function Copy-TicketNotesToClipboard {
+    param([string]$TemplateName)
+    
+    $template = Get-TicketNotesTemplate -TemplateName $TemplateName
+    if ($template) {
+        Set-Clipboard -Value $template
+        Show-Notification "Copied $TemplateName template to clipboard"
+        [System.Console]::Beep(600, 150)
+    } else {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Could not load $TemplateName template.`n`nMake sure TICKET_NOTES.txt is in the same folder as this script.",
+            "Template Not Found",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+    }
+}
+
+# Function: Show Ticket Notes in Popup
+function Show-TicketNotesPopup {
+    param([string]$TemplateName)
+    
+    $template = Get-TicketNotesTemplate -TemplateName $TemplateName
+    if ($template) {
+        $popupForm = New-Object System.Windows.Forms.Form
+        $popupForm.Text = "Ticket Notes - $TemplateName"
+        $popupForm.Size = New-Object System.Drawing.Size(600, 500)
+        $popupForm.StartPosition = "CenterScreen"
+        $popupForm.FormBorderStyle = "FixedDialog"
+        $popupForm.MaximizeBox = $false
+        
+        $textBox = New-Object System.Windows.Forms.TextBox
+        $textBox.Multiline = $true
+        $textBox.ReadOnly = $true
+        $textBox.ScrollBars = "Vertical"
+        $textBox.Font = New-Object System.Drawing.Font("Consolas", 9)
+        $textBox.Text = $template
+        $textBox.Dock = [System.Windows.Forms.DockStyle]::Fill
+        $popupForm.Controls.Add($textBox)
+        
+        $copyBtn = New-Object System.Windows.Forms.Button
+        $copyBtn.Text = "Copy to Clipboard"
+        $copyBtn.Dock = [System.Windows.Forms.DockStyle]::Bottom
+        $copyBtn.Height = 35
+        $copyBtn.Add_Click({
+            Set-Clipboard -Value $template
+            Show-Notification "Copied to clipboard"
+            [System.Console]::Beep(600, 150)
+        })
+        $popupForm.Controls.Add($copyBtn)
+        
+        $popupForm.ShowDialog() | Out-Null
+    } else {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Could not load $TemplateName template.`n`nMake sure TICKET_NOTES.txt is in the same folder as this script.",
+            "Template Not Found",
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Warning
+        )
+    }
+}
+
 # Load Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -170,7 +283,7 @@ Add-Type -AssemblyName System.Drawing
 # Create Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Duo Proxy Upgrade Helper"
-$form.Size = New-Object System.Drawing.Size(400, 500)
+$form.Size = New-Object System.Drawing.Size(400, 750)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -266,6 +379,109 @@ $btnBothPaths.Font = New-Object System.Drawing.Font("Segoe UI", 9)
 $btnBothPaths.Add_Click({ Open-BothConfigPaths })
 $form.Controls.Add($btnBothPaths)
 $buttonY += $buttonSpacing
+
+# Separator Label
+$separatorLabel = New-Object System.Windows.Forms.Label
+$separatorLabel.Text = "────────────────────────────────────────"
+$separatorLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$separatorLabel.ForeColor = [System.Drawing.Color]::DarkGray
+$separatorLabel.Location = New-Object System.Drawing.Point(20, $buttonY + 5)
+$separatorLabel.Size = New-Object System.Drawing.Size(360, 15)
+$separatorLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$form.Controls.Add($separatorLabel)
+$buttonY += 25
+
+# Ticket Notes Section Label
+$notesLabel = New-Object System.Windows.Forms.Label
+$notesLabel.Text = "Ticket Notes Templates"
+$notesLabel.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Bold)
+$notesLabel.ForeColor = [System.Drawing.Color]::DarkBlue
+$notesLabel.Location = New-Object System.Drawing.Point(20, $buttonY)
+$notesLabel.Size = New-Object System.Drawing.Size(360, 20)
+$notesLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$form.Controls.Add($notesLabel)
+$buttonY += 25
+
+# Ticket Notes Buttons (smaller buttons, side by side)
+$smallButtonHeight = 30
+$smallButtonSpacing = 35
+$buttonWidth = 170
+
+# Standard Template - Copy
+$btnStandardCopy = New-Object System.Windows.Forms.Button
+$btnStandardCopy.Text = "Standard: Copy"
+$btnStandardCopy.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnStandardCopy.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnStandardCopy.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnStandardCopy.Add_Click({ Copy-TicketNotesToClipboard -TemplateName "DUO PROXY UPGRADE - TICKET NOTES" })
+$form.Controls.Add($btnStandardCopy)
+
+# Standard Template - View
+$btnStandardView = New-Object System.Windows.Forms.Button
+$btnStandardView.Text = "Standard: View"
+$btnStandardView.Location = New-Object System.Drawing.Point(210, $buttonY)
+$btnStandardView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnStandardView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnStandardView.Add_Click({ Show-TicketNotesPopup -TemplateName "DUO PROXY UPGRADE - TICKET NOTES" })
+$form.Controls.Add($btnStandardView)
+$buttonY += $smallButtonSpacing
+
+# Alternative Template - Copy
+$btnAltCopy = New-Object System.Windows.Forms.Button
+$btnAltCopy.Text = "Alternative: Copy"
+$btnAltCopy.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnAltCopy.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnAltCopy.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnAltCopy.Add_Click({ Copy-TicketNotesToClipboard -TemplateName "ALTERNATIVE VERSION" })
+$form.Controls.Add($btnAltCopy)
+
+# Alternative Template - View
+$btnAltView = New-Object System.Windows.Forms.Button
+$btnAltView.Text = "Alternative: View"
+$btnAltView.Location = New-Object System.Drawing.Point(210, $buttonY)
+$btnAltView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnAltView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnAltView.Add_Click({ Show-TicketNotesPopup -TemplateName "ALTERNATIVE VERSION" })
+$form.Controls.Add($btnAltView)
+$buttonY += $smallButtonSpacing
+
+# Minimal Template - Copy
+$btnMinimalCopy = New-Object System.Windows.Forms.Button
+$btnMinimalCopy.Text = "Minimal: Copy"
+$btnMinimalCopy.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnMinimalCopy.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnMinimalCopy.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnMinimalCopy.Add_Click({ Copy-TicketNotesToClipboard -TemplateName "MINIMAL VERSION" })
+$form.Controls.Add($btnMinimalCopy)
+
+# Minimal Template - View
+$btnMinimalView = New-Object System.Windows.Forms.Button
+$btnMinimalView.Text = "Minimal: View"
+$btnMinimalView.Location = New-Object System.Drawing.Point(210, $buttonY)
+$btnMinimalView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnMinimalView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnMinimalView.Add_Click({ Show-TicketNotesPopup -TemplateName "MINIMAL VERSION" })
+$form.Controls.Add($btnMinimalView)
+$buttonY += $smallButtonSpacing
+
+# Rollback Template - Copy
+$btnRollbackCopy = New-Object System.Windows.Forms.Button
+$btnRollbackCopy.Text = "Rollback: Copy"
+$btnRollbackCopy.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnRollbackCopy.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnRollbackCopy.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnRollbackCopy.Add_Click({ Copy-TicketNotesToClipboard -TemplateName "ROLLBACK VERSION" })
+$form.Controls.Add($btnRollbackCopy)
+
+# Rollback Template - View
+$btnRollbackView = New-Object System.Windows.Forms.Button
+$btnRollbackView.Text = "Rollback: View"
+$btnRollbackView.Location = New-Object System.Drawing.Point(210, $buttonY)
+$btnRollbackView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnRollbackView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnRollbackView.Add_Click({ Show-TicketNotesPopup -TemplateName "ROLLBACK VERSION" })
+$form.Controls.Add($btnRollbackView)
+$buttonY += $smallButtonSpacing
 
 # Info Label
 $infoLabel = New-Object System.Windows.Forms.Label
