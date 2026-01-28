@@ -19,10 +19,10 @@ $DuoDownloadsURL = "https://dl.duosecurity.com/DuoAccessGateway-2.1.1.msi"
 
 # Centralized Path Arrays (to avoid duplication)
 $ProxyManagerPaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
     "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
-    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
     "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
-    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
     "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
     "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
 )
@@ -80,10 +80,14 @@ function Open-ProxyManager {
     $found = $false
     foreach ($path in $ProxyManagerPaths) {
         if (Test-Path $path) {
-            Start-Process $path
-            Show-Notification "Opening Duo Proxy Manager..."
-            $found = $true
-            break
+            $item = Get-Item $path -ErrorAction SilentlyContinue
+            # Verify it's actually a file (not a directory) and has .exe extension
+            if ($item -and -not $item.PSIsContainer -and $item.Extension -eq ".exe") {
+                Start-Process $path
+                Show-Notification "Opening Duo Proxy Manager..."
+                $found = $true
+                break
+            }
         }
     }
     
