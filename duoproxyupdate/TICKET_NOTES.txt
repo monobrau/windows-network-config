@@ -88,3 +88,27 @@ Is the task resolved -
 Yes - Successfully rolled back to previous version. Service running and authentication verified.
 
 ═══════════════════════════════════════════════════════════════
+UNSUPPORTED OS VERSION (Extension Request Required)
+═══════════════════════════════════════════════════════════════
+
+Task - 
+Unable to upgrade Duo Authentication Proxy due to unsupported operating system version.
+
+Step(s) performed - 
+1. Connected to target server via ScreenConnect remote session
+2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
+3. Verified current Duo Proxy version using F3 shortcut (Duo Proxy Manager)
+4. Created backup of configuration file using F5 shortcut (Backup Config File)
+   - Backup file saved to Desktop with timestamp
+   - Verified backup file exists and contains configuration data
+5. Opened Duo downloads page using F4 shortcut to check system requirements
+6. Determined that current operating system version is not supported by latest Duo Proxy version
+7. Verified current Duo Proxy service is running and functioning normally
+8. Opened Duo extension request form to request extension while evaluating options
+9. Submitted extension request with details of unsupported OS version
+10. Documented current Duo Proxy version and operating system details
+
+Is the task resolved - 
+No - Upgrade not possible due to unsupported operating system. Extension requested from Duo. Current Duo Proxy version remains in place and functioning. Evaluating migration options for operating system upgrade or alternative solutions.
+
+═══════════════════════════════════════════════════════════════

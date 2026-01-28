@@ -303,7 +303,7 @@ Add-Type -AssemblyName System.Drawing
 # Create Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Duo Proxy Upgrade Helper"
-$form.Size = New-Object System.Drawing.Size(400, 800)
+$form.Size = New-Object System.Drawing.Size(400, 835)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
@@ -513,6 +513,27 @@ $btnRollbackView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButto
 $btnRollbackView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
 $btnRollbackView.Add_Click({ Show-TicketNotesPopup -TemplateName "ROLLBACK VERSION" })
 $form.Controls.Add($btnRollbackView)
+$buttonY += $smallButtonSpacing
+
+# Unsupported OS Template - Copy
+$btnUnsupportedCopy = New-Object System.Windows.Forms.Button
+$btnUnsupportedCopy.Text = "Unsupported OS: Copy"
+$btnUnsupportedCopy.Location = New-Object System.Drawing.Point(20, $buttonY)
+$btnUnsupportedCopy.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnUnsupportedCopy.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnUnsupportedCopy.BackColor = [System.Drawing.Color]::LightYellow
+$btnUnsupportedCopy.Add_Click({ Copy-TicketNotesToClipboard -TemplateName "UNSUPPORTED OS VERSION" })
+$form.Controls.Add($btnUnsupportedCopy)
+
+# Unsupported OS Template - View
+$btnUnsupportedView = New-Object System.Windows.Forms.Button
+$btnUnsupportedView.Text = "Unsupported OS: View"
+$btnUnsupportedView.Location = New-Object System.Drawing.Point(210, $buttonY)
+$btnUnsupportedView.Size = New-Object System.Drawing.Size($buttonWidth, $smallButtonHeight)
+$btnUnsupportedView.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$btnUnsupportedView.BackColor = [System.Drawing.Color]::LightYellow
+$btnUnsupportedView.Add_Click({ Show-TicketNotesPopup -TemplateName "UNSUPPORTED OS VERSION" })
+$form.Controls.Add($btnUnsupportedView)
 $buttonY += $smallButtonSpacing
 
 # Info Label
