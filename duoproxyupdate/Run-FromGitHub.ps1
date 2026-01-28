@@ -1,5 +1,9 @@
 # Download and Execute DuoProxyUpgrade.ps1 from GitHub
 # Usage: powershell.exe -ExecutionPolicy Bypass -File Run-FromGitHub.ps1
+# Compatible with PowerShell 5.1+
+
+# Ensure TLS 1.2 is enabled for PowerShell 5.x compatibility with GitHub
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # GitHub repository details (update these if needed)
 $GitHubUser = "monobrau"

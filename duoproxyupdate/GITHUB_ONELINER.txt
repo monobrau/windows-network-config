@@ -2,17 +2,17 @@
 ONE-LINER COMMANDS TO DOWNLOAD & EXECUTE FROM GITHUB
 ═══════════════════════════════════════════════════════════════
 
-POWERSHELL ONE-LINER (Copy & Paste):
+POWERSHELL ONE-LINER (Copy & Paste - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile $env:TEMP\DuoProxyUpgrade.ps1 -UseBasicParsing; & $env:TEMP\DuoProxyUpgrade.ps1"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile $env:TEMP\DuoProxyUpgrade.ps1 -UseBasicParsing; & $env:TEMP\DuoProxyUpgrade.ps1"
 
-POWERSHELL ONE-LINER (Shorter - Direct Execution):
+POWERSHELL ONE-LINER (Shorter - Direct Execution - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
 
-CMD/BATCH ONE-LINER:
+CMD/BATCH ONE-LINER (PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile %TEMP%\DuoProxyUpgrade.ps1 -UseBasicParsing && powershell.exe -ExecutionPolicy Bypass -File %TEMP%\DuoProxyUpgrade.ps1"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile %TEMP%\DuoProxyUpgrade.ps1 -UseBasicParsing; powershell.exe -ExecutionPolicy Bypass -File %TEMP%\DuoProxyUpgrade.ps1"
 
 ═══════════════════════════════════════════════════════════════
 USAGE:
@@ -25,6 +25,8 @@ USAGE:
 ═══════════════════════════════════════════════════════════════
 NOTES:
 ───────────────────────────────────────────────────────────────
+- All commands are compatible with PowerShell 5.1+ (Windows 10/11 default)
+- TLS 1.2 is enabled automatically for GitHub HTTPS connections
 - Update GitHub URL if repository/branch differs
 - First command downloads to temp folder then executes
 - Second command executes directly from memory (no temp file)

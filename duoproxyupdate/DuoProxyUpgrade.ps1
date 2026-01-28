@@ -1,8 +1,12 @@
 # Duo Authentication Proxy Upgrade Helper
 # PowerShell GUI Version - SentinelOne Safe
 # Version: 1.0
+# Compatible with PowerShell 5.1+
 
 #Requires -Version 5.1
+
+# Ensure TLS 1.2 is enabled for PowerShell 5.x compatibility
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # Configuration Paths
 $ConfigPathOld = "C:\Program Files (x86)\Duo Security Authentication Proxy\conf"
