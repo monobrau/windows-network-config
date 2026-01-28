@@ -4,15 +4,15 @@ ONE-LINER COMMANDS TO DOWNLOAD & EXECUTE FROM GITHUB
 
 POWERSHELL ONE-LINER (Copy & Paste):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -OutFile $env:TEMP\DuoProxyUpgrade.ps1 -UseBasicParsing; & $env:TEMP\DuoProxyUpgrade.ps1"
+powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile $env:TEMP\DuoProxyUpgrade.ps1 -UseBasicParsing; & $env:TEMP\DuoProxyUpgrade.ps1"
 
 POWERSHELL ONE-LINER (Shorter - Direct Execution):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
+powershell.exe -ExecutionPolicy Bypass -Command "iex (Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content"
 
 CMD/BATCH ONE-LINER:
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/DuoProxyUpgrade.ps1' -OutFile %TEMP%\DuoProxyUpgrade.ps1 -UseBasicParsing && powershell.exe -ExecutionPolicy Bypass -File %TEMP%\DuoProxyUpgrade.ps1"
+powershell.exe -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile %TEMP%\DuoProxyUpgrade.ps1 -UseBasicParsing && powershell.exe -ExecutionPolicy Bypass -File %TEMP%\DuoProxyUpgrade.ps1"
 
 ═══════════════════════════════════════════════════════════════
 USAGE:

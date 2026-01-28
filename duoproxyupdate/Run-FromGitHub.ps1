@@ -5,10 +5,11 @@
 $GitHubUser = "monobrau"
 $GitHubRepo = "windows-network-config"
 $GitHubBranch = "main"
+$SubDirectory = "duoproxyupdate"
 $ScriptFile = "DuoProxyUpgrade.ps1"
 
 # Construct raw GitHub URL
-$GitHubUrl = "https://raw.githubusercontent.com/$GitHubUser/$GitHubRepo/$GitHubBranch/$ScriptFile"
+$GitHubUrl = "https://raw.githubusercontent.com/$GitHubUser/$GitHubRepo/$GitHubBranch/$SubDirectory/$ScriptFile"
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Duo Proxy Upgrade Helper" -ForegroundColor Cyan
