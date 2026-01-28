@@ -19,19 +19,19 @@ $DuoDownloadsURL = "https://dl.duosecurity.com/DuoAccessGateway-2.1.1.msi"
 
 # Centralized Path Arrays (to avoid duplication)
 $ProxyManagerPaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64\Duo_Authentication_Proxy_Manager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64\Duo_Authentication_Proxy_Manager.exe",
     "C:\Program Files\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
     "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
-    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
-    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
     "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
     "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
 )
 
 $ProxyExePaths = @(
-    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
-    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
-    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
-    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64\Duo_Authentication_Proxy_Manager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64\Duo_Authentication_Proxy_Manager.exe",
+    "C:\Program Files\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\Duo_Authentication_Proxy_Manager.exe",
     "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
     "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
     "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
