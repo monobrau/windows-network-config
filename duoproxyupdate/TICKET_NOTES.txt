@@ -8,16 +8,16 @@ Upgrade Duo Authentication Proxy on {SERVER_NAME} from version {DUO_PROXY_VERSIO
 Step(s) performed - 
 1. Connected to target server ({SERVER_NAME}) via ScreenConnect remote session
 2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
-3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using F3 shortcut (Duo Proxy Manager)
-4. Created backup of configuration file using F5 shortcut (Backup Config File)
+3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using Duo Proxy Manager
+4. Created backup of configuration file
    - Backup file saved to {DESKTOP_PATH}
    - Config file location: {CONFIG_FILE_PATH}
    - Verified backup file exists and contains configuration data
-5. Opened Duo downloads page using F4 shortcut to access latest installer
+5. Opened Duo downloads page to access latest installer
 6. Downloaded latest Duo Authentication Proxy installer
 7. Executed installer with default installation settings
 8. Rebooted server as prompted by installer (if required)
-9. Verified new version installed successfully using F3 shortcut (Duo Proxy Manager)
+9. Verified new version installed successfully using Duo Proxy Manager
 10. Confirmed configuration backup file still exists on Desktop
 11. Verified Duo Authentication Proxy service is running and started
 12. Tested authentication functionality to confirm normal operation
@@ -36,8 +36,8 @@ Upgrade Duo Authentication Proxy on {SERVER_NAME} from version {DUO_PROXY_VERSIO
 Step(s) performed - 
 1. Connected to target server ({SERVER_NAME}) via ScreenConnect remote session
 2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
-3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using F3 shortcut (Duo Proxy Manager)
-4. Created backup of configuration file using F5 shortcut (Backup Config File)
+3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using Duo Proxy Manager
+4. Created backup of configuration file
    - Backup file saved to {DESKTOP_PATH}
    - Config file location: {CONFIG_FILE_PATH}
 5. Opened Duo downloads page using F4 shortcut
@@ -60,7 +60,7 @@ Upgrade Duo Authentication Proxy on {SERVER_NAME} from version {DUO_PROXY_VERSIO
 
 Step(s) performed - 
 1. Connected via ScreenConnect and launched Duo Proxy Upgrade Helper tool
-2. Backed up configuration file using F5 shortcut (Config: {CONFIG_FILE_PATH})
+2. Backed up configuration file (Config: {CONFIG_FILE_PATH})
 3. Downloaded and installed latest Duo Proxy version from Duo downloads page
 4. Rebooted server as required by installer
 5. Verified new version installed and service running normally
@@ -99,12 +99,12 @@ Unable to upgrade Duo Authentication Proxy on {SERVER_NAME} due to unsupported o
 Step(s) performed - 
 1. Connected to target server ({SERVER_NAME}) via ScreenConnect remote session
 2. Launched Duo Proxy Upgrade Helper tool using PowerShell one-liner command
-3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using F3 shortcut (Duo Proxy Manager)
-4. Created backup of configuration file using F5 shortcut (Backup Config File)
+3. Verified current Duo Proxy version: {DUO_PROXY_VERSION} using Duo Proxy Manager
+4. Created backup of configuration file
    - Backup file saved to {DESKTOP_PATH}
    - Config file location: {CONFIG_FILE_PATH}
    - Verified backup file exists and contains configuration data
-5. Opened Duo downloads page using F4 shortcut to check system requirements
+5. Opened Duo downloads page to check system requirements
 6. Determined that current operating system ({OS_VERSION}) is not supported by latest Duo Proxy version
 7. Verified current Duo Proxy service is running and functioning normally
 8. Opened Duo extension request form to request extension while evaluating options
