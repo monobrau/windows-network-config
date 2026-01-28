@@ -186,28 +186,34 @@ function Get-TicketNotesTemplate {
     }
     
     $content = Get-Content $notesFile -Raw
-    $templates = $content -split "═══════════════════════════════════════════════════════════════"
+    $lines = $content -split "`r?`n"
     
-    foreach ($template in $templates) {
-        if ($template -match $TemplateName) {
-            # Extract the template content (between Task and end)
-            $lines = $template -split "`r?`n"
-            $result = @()
-            $inTemplate = $false
-            
-            foreach ($line in $lines) {
-                if ($line -match "^Task -") {
-                    $inTemplate = $true
-                }
-                if ($inTemplate) {
-                    $result += $line
-                }
-                if ($inTemplate -and $line -match "^═══════════════════════════════════════════════════════════════" -and $result.Count -gt 1) {
+    $result = @()
+    $inTemplate = $false
+    $foundHeader = $false
+    
+    foreach ($line in $lines) {
+        # Look for the template header
+        if ($line -match $TemplateName -and -not $foundHeader) {
+            $foundHeader = $true
+            continue
+        }
+        
+        # Start collecting after finding the header
+        if ($foundHeader) {
+            # Stop at next separator line
+            if ($line -match "^═══════════════════════════════════════════════════════════════") {
+                if ($result.Count -gt 0) {
                     break
                 }
+            } else {
+                $result += $line
             }
-            return ($result -join "`n").Trim()
         }
+    }
+    
+    if ($result.Count -gt 0) {
+        return ($result -join "`n").Trim()
     }
     
     return $null
