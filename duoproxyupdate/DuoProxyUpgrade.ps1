@@ -561,12 +561,13 @@ Add-Type -AssemblyName System.Drawing
 # Create Main Form
 $form = New-Object System.Windows.Forms.Form
 $form.Text = "Duo Proxy Upgrade Helper"
-$form.Size = New-Object System.Drawing.Size(400, 885)
+$form.Size = New-Object System.Drawing.Size(400, 900)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedDialog"
 $form.MaximizeBox = $false
 $form.MinimizeBox = $true
 $form.TopMost = $true
+$form.AutoScroll = $true
 
 # Detect Duo Proxy on startup
 $startupProxyInfo = Get-DuoProxyInfo
