@@ -217,7 +217,44 @@ function Get-DuoProxyInfo {
         }
     }
     
-    # If not in registry, try executable file versions
+    # If not in registry, try service executable first (most reliable)
+    if (-not $proxyInfo.Version) {
+        try {
+            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
+            if ($service) {
+                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
+                if ($serviceObj -and $serviceObj.PathName) {
+                    $servicePath = $serviceObj.PathName
+                    # Extract executable path (handle quoted and unquoted paths, with or without arguments)
+                    if ($servicePath -match '^"([^"]+)"') {
+                        $exePath = $matches[1]
+                    } elseif ($servicePath -match '^([^\s]+\.exe)') {
+                        $exePath = $matches[1]
+                    } else {
+                        # Try splitting by space and taking first part
+                        $exePath = ($servicePath -split '\s+')[0]
+                    }
+                    
+                    if ($exePath -and (Test-Path $exePath)) {
+                        try {
+                            $fileInfo = Get-Item $exePath
+                            if ($fileInfo.VersionInfo.FileVersion) {
+                                $proxyInfo.Version = $fileInfo.VersionInfo.FileVersion
+                                $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                                $proxyInfo.IsInstalled = $true
+                            } elseif ($fileInfo.VersionInfo.ProductVersion) {
+                                $proxyInfo.Version = $fileInfo.VersionInfo.ProductVersion
+                                $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                                $proxyInfo.IsInstalled = $true
+                            }
+                        } catch {}
+                    }
+                }
+            }
+        } catch {}
+    }
+    
+    # If still not found, try standard executable file versions
     if (-not $proxyInfo.Version) {
         $exePaths = @(
             "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
@@ -313,34 +350,7 @@ function Get-EnvironmentInfo {
     if ($proxyInfo.Version) {
         $info.DuoProxyVersion = $proxyInfo.Version
     } elseif ($proxyInfo.IsInstalled) {
-        # If installed but version unknown, try one more time with service executable
-        try {
-            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
-            if ($service) {
-                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
-                if ($serviceObj -and $serviceObj.PathName) {
-                    $servicePath = $serviceObj.PathName -replace '"', ''
-                    if ($servicePath -and (Test-Path $servicePath)) {
-                        $fileInfo = Get-Item $servicePath
-                        if ($fileInfo.VersionInfo.FileVersion) {
-                            $info.DuoProxyVersion = $fileInfo.VersionInfo.FileVersion
-                        } elseif ($fileInfo.VersionInfo.ProductVersion) {
-                            $info.DuoProxyVersion = $fileInfo.VersionInfo.ProductVersion
-                        } else {
-                            $info.DuoProxyVersion = "Version unknown"
-                        }
-                    } else {
-                        $info.DuoProxyVersion = "Version unknown"
-                    }
-                } else {
-                    $info.DuoProxyVersion = "Version unknown"
-                }
-            } else {
-                $info.DuoProxyVersion = "Version unknown"
-            }
-        } catch {
-            $info.DuoProxyVersion = "Version unknown"
-        }
+        $info.DuoProxyVersion = "Version unknown"
     } else {
         $info.DuoProxyVersion = "Not installed"
     }
