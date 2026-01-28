@@ -391,7 +391,8 @@ $separatorLabel = New-Object System.Windows.Forms.Label
 $separatorLabel.Text = "────────────────────────────────────────"
 $separatorLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
 $separatorLabel.ForeColor = [System.Drawing.Color]::DarkGray
-$separatorLabel.Location = New-Object System.Drawing.Point(20, $buttonY + 5)
+$separatorLabelY = $buttonY + 5
+$separatorLabel.Location = New-Object System.Drawing.Point(20, $separatorLabelY)
 $separatorLabel.Size = New-Object System.Drawing.Size(360, 15)
 $separatorLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $form.Controls.Add($separatorLabel)
