@@ -267,7 +267,7 @@ $infoLabel = New-Object System.Windows.Forms.Label
 $infoLabel.Text = "Click buttons above or use keyboard shortcuts`n(Requires form focus for F1-F6)"
 $infoLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
 $infoLabel.ForeColor = [System.Drawing.Color]::DarkGray
-$infoLabel.Location = New-Object System.Drawing.Point(20, $buttonY + 10)
+$infoLabel.Location = New-Object System.Drawing.Point(20, ($buttonY + 10))
 $infoLabel.Size = New-Object System.Drawing.Size(360, 30)
 $infoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $form.Controls.Add($infoLabel)
