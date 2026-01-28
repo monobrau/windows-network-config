@@ -79,14 +79,30 @@ function Get-ActiveConfigPath {
 function Open-ProxyManager {
     $found = $false
     foreach ($path in $ProxyManagerPaths) {
-        if (Test-Path $path) {
-            $item = Get-Item $path -ErrorAction SilentlyContinue
-            # Verify it's actually a file (not a directory) and has .exe extension
-            if ($item -and -not $item.PSIsContainer -and $item.Extension -eq ".exe") {
-                Start-Process $path
-                Show-Notification "Opening Duo Proxy Manager..."
-                $found = $true
-                break
+        # Resolve to absolute path first
+        $resolvedPath = $null
+        try {
+            if (Test-Path $path) {
+                $resolvedPath = (Resolve-Path $path -ErrorAction Stop).Path
+            }
+        } catch {
+            continue
+        }
+        
+        # Use System.IO.File.Exists for strict file-only checking (returns false for directories)
+        if ($resolvedPath -and [System.IO.File]::Exists($resolvedPath)) {
+            # Triple-check it's actually an .exe file and not a directory
+            $item = Get-Item $resolvedPath -ErrorAction SilentlyContinue
+            if ($item -and -not $item.PSIsContainer -and $item.Extension -eq ".exe" -and $item.Attributes -notmatch "Directory") {
+                try {
+                    Start-Process -FilePath $resolvedPath -ErrorAction Stop
+                    Show-Notification "Opening Duo Proxy Manager..."
+                    $found = $true
+                    break
+                } catch {
+                    # If Start-Process fails, continue to next path
+                    continue
+                }
             }
         }
     }
