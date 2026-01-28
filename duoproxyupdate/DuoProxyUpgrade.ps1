@@ -315,7 +315,7 @@ function Get-TicketNotesTemplate {
         $template = $template -replace '\{SERVER_NAME\}', $envInfo.ServerName
         $template = $template -replace '\{OS_VERSION\}', $envInfo.OSVersion
         $template = $template -replace '\{DUO_PROXY_VERSION\}', $envInfo.DuoProxyVersion
-        $template = $template -replace '\{CONFIG_PATH\}', $envInfo.ConfigPath
+        $template = $template -replace '\{CONFIG_PATH\}', $(if ($envInfo.ConfigPath) { $envInfo.ConfigPath } else { "Not found" })
         $template = $template -replace '\{CONFIG_FILE_PATH\}', $envInfo.ConfigFilePath
         $template = $template -replace '\{DESKTOP_PATH\}', $envInfo.DesktopPath
         $template = $template -replace '\{CURRENT_DATE\}', $envInfo.CurrentDate
