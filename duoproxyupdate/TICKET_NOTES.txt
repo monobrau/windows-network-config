@@ -47,7 +47,7 @@ Step(s) performed -
 11. Tested authentication functionality
 
 Is the task resolved - 
-Status - Detailed description of current state
+Status - Issue encountered and resolved. Service verified and functioning normally.
 
 ═══════════════════════════════════════════════════════════════
 MINIMAL VERSION (Quick Reference)
@@ -88,9 +88,3 @@ Is the task resolved -
 Yes - Successfully rolled back to previous version. Service running and authentication verified.
 
 ═══════════════════════════════════════════════════════════════
-USAGE NOTES:
-───────────────────────────────────────────────────────────────
-- Adjust steps based on your specific environment and requirements
-- Add or remove steps as needed for your organization's process
-- Include specific error messages or details when applicable
-- Reference related ticket numbers or incident IDs if applicable
