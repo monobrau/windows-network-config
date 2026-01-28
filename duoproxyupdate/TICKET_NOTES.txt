@@ -40,7 +40,7 @@ Step(s) performed -
 4. Created backup of configuration file
    - Backup file saved to {DESKTOP_PATH}
    - Config file location: {CONFIG_FILE_PATH}
-5. Opened Duo downloads page using F4 shortcut
+5. Opened Duo downloads page
 6. Downloaded latest Duo Authentication Proxy installer
 7. Executed installer with default installation settings
 8. Issue encountered during upgrade process
