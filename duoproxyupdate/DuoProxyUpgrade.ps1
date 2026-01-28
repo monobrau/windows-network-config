@@ -229,11 +229,40 @@ function Get-DuoProxyInfo {
         foreach ($exePath in $exePaths) {
             if (Test-Path $exePath) {
                 try {
-                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
-                    if ($fileVersion) {
-                        $proxyInfo.Version = $fileVersion
+                    $fileInfo = Get-Item $exePath
+                    # Try FileVersion first
+                    if ($fileInfo.VersionInfo.FileVersion) {
+                        $proxyInfo.Version = $fileInfo.VersionInfo.FileVersion
                         $proxyInfo.InstallPath = Split-Path $exePath -Parent
                         $proxyInfo.IsInstalled = $true
+                        break
+                    }
+                    # Try ProductVersion as fallback
+                    if (-not $proxyInfo.Version -and $fileInfo.VersionInfo.ProductVersion) {
+                        $proxyInfo.Version = $fileInfo.VersionInfo.ProductVersion
+                        $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                        $proxyInfo.IsInstalled = $true
+                        break
+                    }
+                } catch {}
+            }
+        }
+    }
+    
+    # Try reading version from config file if still not found
+    if (-not $proxyInfo.Version) {
+        $configPaths = @(
+            "C:\Program Files\Duo Security Authentication Proxy\conf\authproxy.cfg",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy\conf\authproxy.cfg"
+        )
+        
+        foreach ($configPath in $configPaths) {
+            if (Test-Path $configPath) {
+                try {
+                    $configContent = Get-Content $configPath -Raw
+                    # Look for version in config file comments or metadata
+                    if ($configContent -match 'version["\s:=]+([0-9]+\.[0-9]+\.[0-9]+)') {
+                        $proxyInfo.Version = $matches[1]
                         break
                     }
                 } catch {}
@@ -284,7 +313,34 @@ function Get-EnvironmentInfo {
     if ($proxyInfo.Version) {
         $info.DuoProxyVersion = $proxyInfo.Version
     } elseif ($proxyInfo.IsInstalled) {
-        $info.DuoProxyVersion = "Installed (version unknown - check Duo Proxy Manager)"
+        # If installed but version unknown, try one more time with service executable
+        try {
+            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
+            if ($service) {
+                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
+                if ($serviceObj -and $serviceObj.PathName) {
+                    $servicePath = $serviceObj.PathName -replace '"', ''
+                    if ($servicePath -and (Test-Path $servicePath)) {
+                        $fileInfo = Get-Item $servicePath
+                        if ($fileInfo.VersionInfo.FileVersion) {
+                            $info.DuoProxyVersion = $fileInfo.VersionInfo.FileVersion
+                        } elseif ($fileInfo.VersionInfo.ProductVersion) {
+                            $info.DuoProxyVersion = $fileInfo.VersionInfo.ProductVersion
+                        } else {
+                            $info.DuoProxyVersion = "Version unknown"
+                        }
+                    } else {
+                        $info.DuoProxyVersion = "Version unknown"
+                    }
+                } else {
+                    $info.DuoProxyVersion = "Version unknown"
+                }
+            } else {
+                $info.DuoProxyVersion = "Version unknown"
+            }
+        } catch {
+            $info.DuoProxyVersion = "Version unknown"
+        }
     } else {
         $info.DuoProxyVersion = "Not installed"
     }
