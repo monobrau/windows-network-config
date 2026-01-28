@@ -12,7 +12,7 @@ powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::Secu
 
 RECOMMENDED (Download to file first - bypasses cache issues - USE THIS ON SERVERS):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f"
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;`$ts=Get-Date -Format 'yyyyMMddHHmmss';Invoke-WebRequest -Uri ('https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1?t='+`$ts) -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f"
 
 CMD/BATCH ONE-LINER (PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
@@ -20,7 +20,11 @@ powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::Secu
 
 RUN AS ADMINISTRATOR (For full cache clearing including DNS and Windows Update):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri ''https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1'' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f\"' -Verb RunAs"
+powershell.exe -ExecutionPolicy Bypass -Command "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;`$ts=Get-Date -Format ''yyyyMMddHHmmss'';Invoke-WebRequest -Uri (''https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1?t=''+`$ts) -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f\"' -Verb RunAs"
+
+ALTERNATIVE (Using commit hash - most reliable if getting 404 errors):
+───────────────────────────────────────────────────────────────
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/28757c5/duoproxyupdate/Clear-ServerCache.ps1' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f"
 
 ═══════════════════════════════════════════════════════════════
 USAGE:
