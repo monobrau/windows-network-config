@@ -408,7 +408,7 @@ $buttonY += $buttonSpacing
 
 # Separator Label
 $separatorLabel = New-Object System.Windows.Forms.Label
-$separatorLabel.Text = "────────────────────────────────────────"
+$separatorLabel.Text = "----------------------------------------"
 $separatorLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
 $separatorLabel.ForeColor = [System.Drawing.Color]::DarkGray
 $separatorLabelY = $buttonY + 5
