@@ -2,7 +2,23 @@
 
 If you're getting an old/cached version of the script, try these methods:
 
-## Method 1: Clear PowerShell Cache (Recommended)
+## Method 0: Automated Cache Clearing Script (Easiest - Recommended)
+
+Run the automated cache clearing script directly from GitHub:
+
+**Standard (User-level caches):**
+```powershell
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f"
+```
+
+**As Administrator (Full cache clearing including DNS and Windows Update):**
+```powershell
+powershell.exe -ExecutionPolicy Bypass -Command "Start-Process powershell.exe -ArgumentList '-ExecutionPolicy Bypass -Command \"[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP Clear-ServerCache.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri ''https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/Clear-ServerCache.ps1'' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f\"' -Verb RunAs"
+```
+
+See `CLEAR_CACHE_ONELINER.txt` for more options.
+
+## Method 1: Clear PowerShell Cache (Manual)
 
 Run these commands in PowerShell:
 
