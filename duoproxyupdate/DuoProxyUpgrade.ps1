@@ -171,6 +171,95 @@ function Clear-Notification {
     }
 }
 
+# Function: Detect Duo Proxy Installation and Version
+function Get-DuoProxyInfo {
+    $proxyInfo = @{
+        IsInstalled = $false
+        Version = $null
+        InstallPath = $null
+        ServiceStatus = $null
+    }
+    
+    # Check if service exists
+    try {
+        $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
+        if ($service) {
+            $proxyInfo.IsInstalled = $true
+            $proxyInfo.ServiceStatus = $service.Status.ToString()
+        }
+    } catch {}
+    
+    # Try to get version from registry
+    $regPaths = @(
+        "HKLM:\SOFTWARE\Duo Security\Authentication Proxy",
+        "HKLM:\SOFTWARE\WOW6432Node\Duo Security\Authentication Proxy"
+    )
+    
+    foreach ($regPath in $regPaths) {
+        if (Test-Path $regPath) {
+            try {
+                $regProps = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
+                if ($regProps.Version) {
+                    $proxyInfo.Version = $regProps.Version
+                    if ($regProps.InstallPath) {
+                        $proxyInfo.InstallPath = $regProps.InstallPath
+                    }
+                    break
+                }
+                if ($regProps.DisplayVersion) {
+                    $proxyInfo.Version = $regProps.DisplayVersion
+                    if ($regProps.InstallPath) {
+                        $proxyInfo.InstallPath = $regProps.InstallPath
+                    }
+                    break
+                }
+            } catch {}
+        }
+    }
+    
+    # If not in registry, try executable file versions
+    if (-not $proxyInfo.Version) {
+        $exePaths = @(
+            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe"
+        )
+        
+        foreach ($exePath in $exePaths) {
+            if (Test-Path $exePath) {
+                try {
+                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
+                    if ($fileVersion) {
+                        $proxyInfo.Version = $fileVersion
+                        $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                        $proxyInfo.IsInstalled = $true
+                        break
+                    }
+                } catch {}
+            }
+        }
+    }
+    
+    # Check install paths to determine if installed
+    if (-not $proxyInfo.IsInstalled) {
+        $installPaths = @(
+            "C:\Program Files\Duo Security Authentication Proxy",
+            "C:\Program Files (x86)\Duo Security Authentication Proxy"
+        )
+        
+        foreach ($path in $installPaths) {
+            if (Test-Path $path) {
+                $proxyInfo.IsInstalled = $true
+                $proxyInfo.InstallPath = $path
+                break
+            }
+        }
+    }
+    
+    return $proxyInfo
+}
+
 # Function: Get Environment Information
 function Get-EnvironmentInfo {
     $info = @{}
@@ -190,97 +279,10 @@ function Get-EnvironmentInfo {
         $info.OSVersion = "Unknown"
     }
     
-    # Duo Proxy Version (try multiple methods)
-    $duoVersion = $null
-    
-    # Method 1: Try registry paths
-    $regPaths = @(
-        "HKLM:\SOFTWARE\Duo Security\Authentication Proxy",
-        "HKLM:\SOFTWARE\WOW6432Node\Duo Security\Authentication Proxy"
-    )
-    
-    foreach ($regPath in $regPaths) {
-        if (Test-Path $regPath) {
-            try {
-                $regProps = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
-                if ($regProps.Version) {
-                    $duoVersion = $regProps.Version
-                    break
-                }
-                if ($regProps.DisplayVersion) {
-                    $duoVersion = $regProps.DisplayVersion
-                    break
-                }
-            } catch {}
-        }
-    }
-    
-    # Method 2: Try Proxy Manager executable
-    if (-not $duoVersion) {
-        $proxyManagerPaths = @(
-            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
-        )
-        
-        foreach ($exePath in $proxyManagerPaths) {
-            if (Test-Path $exePath) {
-                try {
-                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
-                    if ($fileVersion) {
-                        $duoVersion = $fileVersion
-                        break
-                    }
-                } catch {}
-            }
-        }
-    }
-    
-    # Method 3: Try service executable
-    if (-not $duoVersion) {
-        try {
-            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
-            if ($service) {
-                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
-                if ($serviceObj -and $serviceObj.PathName) {
-                    $servicePath = $serviceObj.PathName
-                    if ($servicePath -match '"([^"]+)"') {
-                        $exePath = $matches[1]
-                    } elseif ($servicePath -match '^([^\s]+\.exe)') {
-                        $exePath = $matches[1]
-                    }
-                    
-                    if ($exePath -and (Test-Path $exePath)) {
-                        $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
-                        if ($fileVersion) {
-                            $duoVersion = $fileVersion
-                        }
-                    }
-                }
-            }
-        } catch {}
-    }
-    
-    # Method 4: Try main proxy executable
-    if (-not $duoVersion) {
-        $proxyExePaths = @(
-            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe"
-        )
-        
-        foreach ($exePath in $proxyExePaths) {
-            if (Test-Path $exePath) {
-                try {
-                    $fileVersion = (Get-Item $exePath).VersionInfo.FileVersion
-                    if ($fileVersion) {
-                        $duoVersion = $fileVersion
-                        break
-                    }
-                } catch {}
-            }
-        }
-    }
-    
-    $info.DuoProxyVersion = if ($duoVersion) { $duoVersion } else { "Unable to determine - check Duo Proxy Manager" }
+    # Get Duo Proxy info using dedicated function
+    $proxyInfo = Get-DuoProxyInfo
+    $info.DuoProxyVersion = if ($proxyInfo.Version) { $proxyInfo.Version } else { "Unable to determine - check Duo Proxy Manager" }
+    $info.DuoProxyInstalled = $proxyInfo.IsInstalled
     
     # Determine which config path is in use
     $info.ConfigPath = $null
@@ -459,6 +461,9 @@ $form.MaximizeBox = $false
 $form.MinimizeBox = $true
 $form.TopMost = $true
 
+# Detect Duo Proxy on startup
+$startupProxyInfo = Get-DuoProxyInfo
+
 # Title Label
 $titleLabel = New-Object System.Windows.Forms.Label
 $titleLabel.Text = "Duo Authentication Proxy Upgrade Helper"
@@ -468,12 +473,29 @@ $titleLabel.Size = New-Object System.Drawing.Size(370, 25)
 $titleLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $form.Controls.Add($titleLabel)
 
+# Proxy Detection Label
+$proxyInfoLabel = New-Object System.Windows.Forms.Label
+if ($startupProxyInfo.IsInstalled) {
+    $versionText = if ($startupProxyInfo.Version) { "Version $($startupProxyInfo.Version)" } else { "Version unknown" }
+    $statusText = if ($startupProxyInfo.ServiceStatus) { " - Service: $($startupProxyInfo.ServiceStatus)" } else { "" }
+    $proxyInfoLabel.Text = "Detected: Duo Proxy installed - $versionText$statusText"
+    $proxyInfoLabel.ForeColor = [System.Drawing.Color]::DarkGreen
+} else {
+    $proxyInfoLabel.Text = "Detected: Duo Proxy not found on this system"
+    $proxyInfoLabel.ForeColor = [System.Drawing.Color]::DarkOrange
+}
+$proxyInfoLabel.Font = New-Object System.Drawing.Font("Segoe UI", 8)
+$proxyInfoLabel.Location = New-Object System.Drawing.Point(10, 40)
+$proxyInfoLabel.Size = New-Object System.Drawing.Size(370, 18)
+$proxyInfoLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
+$form.Controls.Add($proxyInfoLabel)
+
 # Status Label
 $script:NotifyLabel = New-Object System.Windows.Forms.Label
 $script:NotifyLabel.Text = "Ready"
 $script:NotifyLabel.ForeColor = [System.Drawing.Color]::Gray
 $script:NotifyLabel.Font = New-Object System.Drawing.Font("Segoe UI", 9)
-$script:NotifyLabel.Location = New-Object System.Drawing.Point(10, 40)
+$script:NotifyLabel.Location = New-Object System.Drawing.Point(10, 62)
 $script:NotifyLabel.Size = New-Object System.Drawing.Size(370, 20)
 $script:NotifyLabel.TextAlign = [System.Drawing.ContentAlignment]::MiddleCenter
 $form.Controls.Add($script:NotifyLabel)
@@ -484,7 +506,7 @@ $script:NotifyTimer.Interval = 3000
 $script:NotifyTimer.Add_Tick({ Clear-Notification })
 
 # Buttons
-$buttonY = 75
+$buttonY = 90
 $buttonHeight = 40
 $buttonSpacing = 50
 
