@@ -281,7 +281,13 @@ function Get-EnvironmentInfo {
     
     # Get Duo Proxy info using dedicated function
     $proxyInfo = Get-DuoProxyInfo
-    $info.DuoProxyVersion = if ($proxyInfo.Version) { $proxyInfo.Version } else { "Unable to determine - check Duo Proxy Manager" }
+    if ($proxyInfo.Version) {
+        $info.DuoProxyVersion = $proxyInfo.Version
+    } elseif ($proxyInfo.IsInstalled) {
+        $info.DuoProxyVersion = "Installed (version unknown - check Duo Proxy Manager)"
+    } else {
+        $info.DuoProxyVersion = "Not installed"
+    }
     $info.DuoProxyInstalled = $proxyInfo.IsInstalled
     
     # Determine which config path is in use
