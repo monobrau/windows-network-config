@@ -1,7 +1,8 @@
 # Duo Authentication Proxy Upgrade Helper
 # PowerShell GUI Version - SentinelOne Safe
-# Version: 1.0
+# Version: 1.1
 # Compatible with PowerShell 5.1+
+# Fixed: Point constructor compatibility for PowerShell 5.x
 
 #Requires -Version 5.1
 
