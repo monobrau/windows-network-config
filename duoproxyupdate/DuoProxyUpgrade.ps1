@@ -15,8 +15,38 @@ $ConfigPathOld = "C:\Program Files (x86)\Duo Security Authentication Proxy\conf"
 $ConfigPathNew = "C:\Program Files\Duo Security Authentication Proxy\conf"
 $ConfigFile = "authproxy.cfg"
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
-$DuoDownloadsURL = "https://duo.com/docs/checksums"
-$ProxyManagerExe = "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
+$DuoDownloadsURL = "https://dl.duosecurity.com/DuoAccessGateway-2.1.1.msi"
+
+# Centralized Path Arrays (to avoid duplication)
+$ProxyManagerPaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
+    "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
+)
+
+$ProxyExePaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
+    "C:\Program Files\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\bin\local_proxy_manager-win32-x64",
+    "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
+    "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe"
+)
+
+$ConfigFilePaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy\conf\authproxy.cfg",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy\conf\authproxy.cfg"
+)
+
+$InstallPaths = @(
+    "C:\Program Files\Duo Security Authentication Proxy",
+    "C:\Program Files (x86)\Duo Security Authentication Proxy"
+)
 
 # Function: Open Config Path
 function Open-ConfigPath {
@@ -35,15 +65,20 @@ function Open-ConfigPath {
     }
 }
 
+# Function: Get Active Config Path (helper to avoid duplication)
+function Get-ActiveConfigPath {
+    if (Test-Path $ConfigPathNew) {
+        return $ConfigPathNew
+    } elseif (Test-Path $ConfigPathOld) {
+        return $ConfigPathOld
+    }
+    return $null
+}
+
 # Function: Open Duo Proxy Manager
 function Open-ProxyManager {
-    $paths = @(
-        "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
-        "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe"
-    )
-    
     $found = $false
-    foreach ($path in $paths) {
+    foreach ($path in $ProxyManagerPaths) {
         if (Test-Path $path) {
             Start-Process $path
             Show-Notification "Opening Duo Proxy Manager..."
@@ -54,7 +89,7 @@ function Open-ProxyManager {
     
     if (-not $found) {
         [System.Windows.Forms.MessageBox]::Show(
-            "Duo Proxy Manager not found.`n`nTried:`n$($paths -join "`n")",
+            "Duo Proxy Manager not found.`n`nTried:`n$($ProxyManagerPaths -join "`n")",
             "File Not Found",
             [System.Windows.Forms.MessageBoxButtons]::OK,
             [System.Windows.Forms.MessageBoxIcon]::Warning
@@ -62,10 +97,10 @@ function Open-ProxyManager {
     }
 }
 
-# Function: Open Duo Downloads
+# Function: Open Duo Downloads (Downloads Installer)
 function Open-DuoDownloads {
     Start-Process $DuoDownloadsURL
-    Show-Notification "Opening Duo Downloads page..."
+    Show-Notification "Downloading Duo Proxy installer..."
 }
 
 # Function: Open Duo Extension Request Form
@@ -77,14 +112,10 @@ function Open-DuoExtensionRequest {
 
 # Function: Backup Config File
 function Backup-ConfigFile {
-    # Try new path first (5.6.0+), then old path
-    $configPath = $null
+    # Use helper function to get active config path
+    $configPath = Get-ActiveConfigPath
     
-    if (Test-Path $ConfigPathNew) {
-        $configPath = $ConfigPathNew
-    } elseif (Test-Path $ConfigPathOld) {
-        $configPath = $ConfigPathOld
-    } else {
+    if (-not $configPath) {
         [System.Windows.Forms.MessageBox]::Show(
             "Config directory not found in either location.`n`nOld: $ConfigPathOld`nNew: $ConfigPathNew",
             "Path Not Found",
@@ -218,37 +249,35 @@ function Get-DuoProxyInfo {
     }
     
     # If not in registry, try service executable first (most reliable)
-    if (-not $proxyInfo.Version) {
+    # Note: Service was already checked above, so reuse $service variable if available
+    if (-not $proxyInfo.Version -and $service) {
         try {
-            $service = Get-Service -Name "DuoAuthenticationProxy" -ErrorAction SilentlyContinue
-            if ($service) {
-                $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
-                if ($serviceObj -and $serviceObj.PathName) {
-                    $servicePath = $serviceObj.PathName
-                    # Extract executable path (handle quoted and unquoted paths, with or without arguments)
-                    if ($servicePath -match '^"([^"]+)"') {
-                        $exePath = $matches[1]
-                    } elseif ($servicePath -match '^([^\s]+\.exe)') {
-                        $exePath = $matches[1]
-                    } else {
-                        # Try splitting by space and taking first part
-                        $exePath = ($servicePath -split '\s+')[0]
-                    }
-                    
-                    if ($exePath -and (Test-Path $exePath)) {
-                        try {
-                            $fileInfo = Get-Item $exePath
-                            if ($fileInfo.VersionInfo.FileVersion) {
-                                $proxyInfo.Version = $fileInfo.VersionInfo.FileVersion
-                                $proxyInfo.InstallPath = Split-Path $exePath -Parent
-                                $proxyInfo.IsInstalled = $true
-                            } elseif ($fileInfo.VersionInfo.ProductVersion) {
-                                $proxyInfo.Version = $fileInfo.VersionInfo.ProductVersion
-                                $proxyInfo.InstallPath = Split-Path $exePath -Parent
-                                $proxyInfo.IsInstalled = $true
-                            }
-                        } catch {}
-                    }
+            $serviceObj = Get-WmiObject Win32_Service -Filter "Name='DuoAuthenticationProxy'" -ErrorAction SilentlyContinue
+            if ($serviceObj -and $serviceObj.PathName) {
+                $servicePath = $serviceObj.PathName
+                # Extract executable path (handle quoted and unquoted paths, with or without arguments)
+                if ($servicePath -match '^"([^"]+)"') {
+                    $exePath = $matches[1]
+                } elseif ($servicePath -match '^([^\s]+\.exe)') {
+                    $exePath = $matches[1]
+                } else {
+                    # Try splitting by space and taking first part
+                    $exePath = ($servicePath -split '\s+')[0]
+                }
+                
+                if ($exePath -and (Test-Path $exePath)) {
+                    try {
+                        $fileInfo = Get-Item $exePath
+                        if ($fileInfo.VersionInfo.FileVersion) {
+                            $proxyInfo.Version = $fileInfo.VersionInfo.FileVersion
+                            $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                            $proxyInfo.IsInstalled = $true
+                        } elseif ($fileInfo.VersionInfo.ProductVersion) {
+                            $proxyInfo.Version = $fileInfo.VersionInfo.ProductVersion
+                            $proxyInfo.InstallPath = Split-Path $exePath -Parent
+                            $proxyInfo.IsInstalled = $true
+                        }
+                    } catch {}
                 }
             }
         } catch {}
@@ -256,14 +285,7 @@ function Get-DuoProxyInfo {
     
     # If still not found, try standard executable file versions
     if (-not $proxyInfo.Version) {
-        $exePaths = @(
-            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxyManager.exe",
-            "C:\Program Files\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy\DuoAuthenticationProxy.exe"
-        )
-        
-        foreach ($exePath in $exePaths) {
+        foreach ($exePath in $ProxyExePaths) {
             if (Test-Path $exePath) {
                 try {
                     $fileInfo = Get-Item $exePath
@@ -288,12 +310,7 @@ function Get-DuoProxyInfo {
     
     # Try reading version from config file if still not found
     if (-not $proxyInfo.Version) {
-        $configPaths = @(
-            "C:\Program Files\Duo Security Authentication Proxy\conf\authproxy.cfg",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy\conf\authproxy.cfg"
-        )
-        
-        foreach ($configPath in $configPaths) {
+        foreach ($configPath in $ConfigFilePaths) {
             if (Test-Path $configPath) {
                 try {
                     $configContent = Get-Content $configPath -Raw
@@ -309,12 +326,7 @@ function Get-DuoProxyInfo {
     
     # Check install paths to determine if installed
     if (-not $proxyInfo.IsInstalled) {
-        $installPaths = @(
-            "C:\Program Files\Duo Security Authentication Proxy",
-            "C:\Program Files (x86)\Duo Security Authentication Proxy"
-        )
-        
-        foreach ($path in $installPaths) {
+        foreach ($path in $InstallPaths) {
             if (Test-Path $path) {
                 $proxyInfo.IsInstalled = $true
                 $proxyInfo.InstallPath = $path
@@ -356,13 +368,8 @@ function Get-EnvironmentInfo {
     }
     $info.DuoProxyInstalled = $proxyInfo.IsInstalled
     
-    # Determine which config path is in use
-    $info.ConfigPath = $null
-    if (Test-Path $ConfigPathNew) {
-        $info.ConfigPath = $ConfigPathNew
-    } elseif (Test-Path $ConfigPathOld) {
-        $info.ConfigPath = $ConfigPathOld
-    }
+    # Determine which config path is in use (use helper function)
+    $info.ConfigPath = Get-ActiveConfigPath
     
     # Config file path
     if ($info.ConfigPath) {
@@ -612,9 +619,9 @@ $btnProxyManager.Add_Click({ Open-ProxyManager })
 $form.Controls.Add($btnProxyManager)
 $buttonY += $buttonSpacing
 
-# Button 4: Open Duo Downloads
+# Button 4: Download Installer
 $btnDownloads = New-Object System.Windows.Forms.Button
-$btnDownloads.Text = "F4: Open Duo Downloads Page"
+$btnDownloads.Text = "F4: Download Duo Proxy Installer"
 $btnDownloads.Location = New-Object System.Drawing.Point(20, $buttonY)
 $btnDownloads.Size = New-Object System.Drawing.Size(360, $buttonHeight)
 $btnDownloads.Font = New-Object System.Drawing.Font("Segoe UI", 9)
