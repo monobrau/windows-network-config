@@ -1,0 +1,19 @@
+# FIPPERD Award Nomination Generator Requirements
+# This application uses only Python standard library modules
+# No additional packages required for basic functionality
+
+# The following are the standard library modules used:
+# - tkinter (GUI framework)
+# - json (settings persistence)
+# - os (file operations)
+# - random (text randomization)
+# - datetime (not currently used but imported for future features)
+
+# If you want to run this on a system without tkinter (rare), you may need:
+# For Ubuntu/Debian: sudo apt-get install python3-tk
+# For CentOS/RHEL: sudo yum install tkinter
+# For macOS: tkinter is included with Python
+# For Windows: tkinter is included with Python
+
+# No pip install required - this application uses only standard library modules!
+

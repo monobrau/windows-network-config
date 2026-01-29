@@ -1,0 +1,55 @@
+═══════════════════════════════════════════════════════════════
+  DUO PROXY UPGRADE - SCREENCONNECT SESSION CHECKLIST
+═══════════════════════════════════════════════════════════════
+
+BEFORE STARTING:
+───────────────────────────────────────────────────────────────
+☐ Connected to target server via ScreenConnect
+☐ Transferred DuoProxyUpgrade.ps1 to server Desktop
+   OR downloaded from GitHub using one-liner command
+☐ Started DuoProxyUpgrade.ps1 on remote server
+   (Right-click → Run with PowerShell)
+☐ Verified GUI window appears in remote session
+☐ Clicked inside GUI window to give it focus
+
+PRE-UPGRADE:
+───────────────────────────────────────────────────────────────
+☐ Press F3 - Check current Duo Proxy version
+☐ Press F5 - Backup config file (verify on Desktop)
+☐ Press F4 - Open Duo downloads page
+☐ Note: Backup filename = authproxy_YYYYMMDDHHMMSS.cfg
+
+UPGRADE PROCESS:
+───────────────────────────────────────────────────────────────
+☐ Download latest installer from Duo page
+☐ Run installer (use defaults)
+☐ REBOOT if prompted (critical - prevents rollback!)
+
+POST-UPGRADE:
+───────────────────────────────────────────────────────────────
+☐ Press F3 - Verify new version installed
+☐ Press F5 - Confirm backup still exists
+☐ Verify service is running
+☐ Update tracking spreadsheet with version + date
+
+CLEANUP:
+───────────────────────────────────────────────────────────────
+☐ Close DuoProxyUpgrade.ps1 GUI window
+☐ Keep backup file on Desktop (for rollback if needed)
+☐ Optional: Delete DuoProxyUpgrade.ps1 or keep for future use
+
+═══════════════════════════════════════════════════════════════
+
+QUICK REFERENCE (Keep This Visible):
+───────────────────────────────────────────────────────────────
+F1  →  Old Config Path (Pre 5.6.0)
+F2  →  New Config Path (5.6.0+)
+F3  →  Duo Proxy Manager
+F4  →  Duo Downloads Page
+F5  →  Backup Config (Auto-detect)
+F6  →  Open Both Config Paths
+
+NOTE: Hotkeys only work when GUI window has focus!
+Click inside the window before using F1-F6 shortcuts.
+
+═══════════════════════════════════════════════════════════════

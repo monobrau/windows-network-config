@@ -1,0 +1,38 @@
+═══════════════════════════════════════════════════════════════
+  DUO PROXY UPGRADE - QUICK START (ScreenConnect)
+═══════════════════════════════════════════════════════════════
+
+POWERSHELL VERSION (Recommended - SentinelOne Safe):
+───────────────────────────────────────────────────────────────
+
+1. Transfer DuoProxyUpgrade.ps1 to server via ScreenConnect
+2. Right-click → Run with PowerShell
+   OR
+   Run: powershell.exe -ExecutionPolicy Bypass -File "DuoProxyUpgrade.ps1"
+3. Use GUI buttons or F1-F6 shortcuts (click inside window first)
+4. Close window when done
+
+═══════════════════════════════════════════════════════════════
+
+POWERSHELL FEATURES:
+───────────────────────────────────────────────────────────────
+✓ GUI window with buttons
+✓ F1-F6 keyboard shortcuts (when window has focus)
+✓ Auto-detects config paths
+✓ Timestamped backups
+✓ Status notifications
+✓ SentinelOne/EDR safe
+✓ No compilation needed
+✓ Native Windows PowerShell
+
+═══════════════════════════════════════════════════════════════
+
+USAGE TIPS:
+───────────────────────────────────────────────────────────────
+• Click inside GUI window before using F1-F6 shortcuts
+• F5 button is highlighted in green (backup config)
+• Status messages appear in the window
+• Window stays on top during ScreenConnect sessions
+• All file operations happen on remote server
+
+═══════════════════════════════════════════════════════════════

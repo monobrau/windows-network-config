@@ -1,0 +1,54 @@
+═══════════════════════════════════════════════════════════════
+  DUO PROXY UPGRADE - POWERSHELL QUICK REFERENCE
+═══════════════════════════════════════════════════════════════
+
+HOTKEYS (GUI Window must have focus):
+───────────────────────────────────────────────────────────────
+F1  →  Open Old Config Path (Pre 5.6.0)
+F2  →  Open New Config Path (5.6.0+)
+F3  →  Open Duo Proxy Manager
+F4  →  Open Duo Downloads Page
+F5  →  Backup Config File (Auto-detect path)
+F6  →  Open Both Config Paths
+
+───────────────────────────────────────────────────────────────
+
+TYPICAL WORKFLOW:
+───────────────────────────────────────────────────────────────
+1. Run: powershell.exe -ExecutionPolicy Bypass -File "DuoProxyUpgrade.ps1"
+2. Click inside GUI window to give it focus
+3. Press F3 to check current version
+4. Press F5 to backup config BEFORE upgrade
+5. Press F4 to open downloads page
+6. After upgrade, press F3 to verify new version
+7. Press F5 again to confirm backup exists
+8. Close GUI window when done
+
+───────────────────────────────────────────────────────────────
+
+CONFIG PATHS:
+───────────────────────────────────────────────────────────────
+Old (Pre 5.6.0):
+  C:\Program Files (x86)\Duo Security Authentication Proxy\conf
+
+New (5.6.0+):
+  C:\Program Files\Duo Security Authentication Proxy\conf
+
+Config File: authproxy.cfg
+
+───────────────────────────────────────────────────────────────
+
+GUI BUTTONS:
+───────────────────────────────────────────────────────────────
+All actions available via buttons - no keyboard shortcuts needed!
+Click buttons in the GUI window for:
+  • Open Old Config Path
+  • Open New Config Path
+  • Open Proxy Manager
+  • Open Downloads
+  • Backup Config (highlighted in green)
+  • Open Both Paths
+  • Extension Request
+  • Ticket Notes Templates
+
+═══════════════════════════════════════════════════════════════

@@ -15,7 +15,7 @@ $ConfigPathOld = "C:\Program Files (x86)\Duo Security Authentication Proxy\conf"
 $ConfigPathNew = "C:\Program Files\Duo Security Authentication Proxy\conf"
 $ConfigFile = "authproxy.cfg"
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
-$DuoDownloadsURL = "https://dl.duosecurity.com/DuoAccessGateway-2.1.1.msi"
+$DuoDownloadsURL = "https://dl.duosecurity.com/duoauthproxy-6.6.0.exe"
 
 # Centralized Path Arrays (to avoid duplication)
 $ProxyManagerPaths = @(

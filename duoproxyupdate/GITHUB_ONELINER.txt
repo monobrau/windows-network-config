@@ -10,9 +10,9 @@ POWERSHELL ONE-LINER (Shorter - Direct Execution - PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
 powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;iex((Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -UseBasicParsing).Content)"
 
-ALTERNATIVE (Download to file first - bypasses cache issues):
+RECOMMENDED (Download to file first - bypasses cache issues - USE THIS ON SERVERS):
 ───────────────────────────────────────────────────────────────
-powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;$ts=Get-Date -Format 'yyyyMMddHHmmss';Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile \"$env:TEMP\DuoProxyUpgrade_$ts.ps1\" -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File \"$env:TEMP\DuoProxyUpgrade_$ts.ps1\""
+powershell.exe -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol=[Net.SecurityProtocolType]::Tls12;`$f=Join-Path `$env:TEMP DuoProxyUpgrade.ps1;Remove-Item `$f -ErrorAction SilentlyContinue;Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/monobrau/windows-network-config/main/duoproxyupdate/DuoProxyUpgrade.ps1' -OutFile `$f -UseBasicParsing;powershell.exe -ExecutionPolicy Bypass -File `$f"
 
 CMD/BATCH ONE-LINER (PowerShell 5.x Compatible):
 ───────────────────────────────────────────────────────────────
@@ -31,11 +31,12 @@ NOTES:
 ───────────────────────────────────────────────────────────────
 - All commands are compatible with PowerShell 5.1+ (Windows 10/11 default)
 - TLS 1.2 is enabled automatically for GitHub HTTPS connections
-- Second command includes cache-busting (random number) to ensure fresh download
+- **RECOMMENDED command** (third one) uses timestamp cache-busting - USE THIS when running on servers
 - Update GitHub URL if repository/branch differs
 - First command downloads to temp folder then executes
-- Second command executes directly from memory (no temp file)
-- Third command works from CMD/Batch files
-- If you get cached/old version, see CLEAR_CACHE.md for troubleshooting
+- Second command executes directly from memory (no temp file) - may be cached
+- Third command (RECOMMENDED) downloads with timestamp to bypass cache - best for server use
+- Fourth command works from CMD/Batch files
+- If you get cached/old version, see TROUBLESHOOT_VERSION_DETECTION.md for troubleshooting
 
 ═══════════════════════════════════════════════════════════════
