@@ -47,6 +47,7 @@ A collection of PowerShell scripts for managing Windows network adapter configur
 ```
 
 ### From GitHub (No Download Required)
+Set-DHCP.ps1 auto-downloads `NetworkAdapterHelpers.ps1` from this repo when run standalone—no need to clone or download multiple files.
 ```powershell
 # Download and run Set-DHCP.ps1
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/monobrau/windows-network-config/main/Set-DHCP.ps1" -OutFile "Set-DHCP.ps1"; .\Set-DHCP.ps1; del Set-DHCP.ps1
