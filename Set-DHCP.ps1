@@ -7,9 +7,22 @@ param(
     [switch]$Help
 )
 
-# Import shared helper functions
+# Import shared helper functions (auto-download if running as standalone)
 $scriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
-. "$scriptPath\NetworkAdapterHelpers.ps1"
+$helperPath = "$scriptPath\NetworkAdapterHelpers.ps1"
+$helperUrl = "https://raw.githubusercontent.com/monobrau/windows-network-config/main/NetworkAdapterHelpers.ps1"
+
+if (-not (Test-Path $helperPath)) {
+    try {
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Downloading NetworkAdapterHelpers.ps1..." -ForegroundColor Yellow
+        Invoke-WebRequest -Uri $helperUrl -OutFile $helperPath -UseBasicParsing -ErrorAction Stop
+    } catch {
+        Write-Host "ERROR: Could not load or download NetworkAdapterHelpers.ps1" -ForegroundColor Red
+        Write-Host "Please ensure you have the full repo, or run: Invoke-WebRequest -Uri '$helperUrl' -OutFile '$helperPath'" -ForegroundColor Yellow
+        exit 1
+    }
+}
+. $helperPath
 
 function Show-Help {
     Write-Host @"
